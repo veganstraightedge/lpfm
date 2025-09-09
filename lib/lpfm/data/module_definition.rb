@@ -9,6 +9,8 @@ module LPFM
                     :aliases, :alias_methods, :visibility_sections, :prose, :namespace,
                     :inline_attrs, :is_namespace, :in_singleton_block
 
+      attr_writer :namespace
+
       def initialize(name)
         @name = name
         @methods = []
@@ -113,10 +115,6 @@ module LPFM
 
       def namespace
         @namespace ||= []
-      end
-
-      def namespace=(value)
-        @namespace = value
       end
 
       def is_namespace?
