@@ -75,7 +75,7 @@ module LPFM
 
       def extract_method_arguments(name)
         if name.include?('(') && name.include?(')')
-          args_part = name[name.index('(') + 1...name.rindex(')')]
+          args_part = name[(name.index('(') + 1)...name.rindex(')')]
           args_part.split(',').map(&:strip).reject(&:empty?)
         else
           []
