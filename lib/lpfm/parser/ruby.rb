@@ -260,11 +260,12 @@ module LPFM
         return if symbols.empty?
 
         # Use inline attrs to preserve order and spacing
-        attr_symbol = case attr_type
-                      when "attr_reader" then :reader
-                      when "attr_writer" then :writer
-                      when "attr_accessor" then :accessor
-                      end
+
+        attr_symbol = {
+          "attr_reader"   => :reader,
+          "attr_writer"   => :writer,
+          "attr_accessor" => :accessor
+        }[attr_type]
 
         parent_class_or_module.add_inline_attr(attr_symbol, symbols)
       end

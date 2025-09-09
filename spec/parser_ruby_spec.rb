@@ -8,8 +8,8 @@ RSpec.describe LPFM::Parser::Ruby do
     # Get all Ruby example files from doc/examples/
     example_files = Dir.glob("doc/examples/**/*.rb").map do |file|
       {
-        path: file,
-        name: File.basename(File.dirname(file)),
+        path:      file,
+        name:      File.basename(File.dirname(file)),
         ruby_file: file
       }
     end
