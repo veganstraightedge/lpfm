@@ -127,7 +127,7 @@ RSpec.describe "LPFM Examples" do
         lpfm = LPFM::LPFM.new(content)
 
         calculator_class = lpfm.classes.values.first
-        methods_with_args = calculator_class.methods.select { |m| m.has_arguments? }
+        methods_with_args = calculator_class.methods.select(&:has_arguments?)
         expect(methods_with_args).not_to be_empty
       end
     end

@@ -229,9 +229,7 @@ RSpec.describe LPFM::Parser::Ruby do
         lpfm = LPFM::LPFM.new(ruby_content, type: :ruby)
 
         # Should have at least one class with attributes
-        class_with_attrs = lpfm.classes.values.find do |c|
-          c.has_attr_methods?
-        end
+        class_with_attrs = lpfm.classes.values.find(&:has_attr_methods?)
 
         expect(class_with_attrs).not_to be_nil, "Should find a class with attributes"
       end

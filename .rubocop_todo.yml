@@ -235,12 +235,3 @@ Style/StringConcatenation:
   Exclude:
     - 'lib/lpfm/converter/foundation.rb'
     - 'spec/parser_ruby_spec.rb'
-
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowMethodsWithArguments, AllowedMethods, AllowedPatterns, AllowComments.
-# AllowedMethods: define_method
-Style/SymbolProc:
-  Exclude:
-    - 'spec/examples_spec.rb'
-    - 'spec/parser_ruby_spec.rb'
