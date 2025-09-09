@@ -73,7 +73,7 @@ module LPFM
         return "" if prose.empty?
 
         indent = "  " * indent_level
-        prose.map do |section, text|
+        prose.map do |_section, text|
           lines = text.split("\n").map { |line| "#{indent}# #{line}".rstrip }
           lines.join("\n")
         end.join("\n") + "\n"
