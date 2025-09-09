@@ -45,7 +45,7 @@ module LPFM
       self
     rescue ArgumentError => e
       raise e
-    rescue => e
+    rescue StandardError => e
       raise Error, "Failed to load content: #{e.message}"
     end
 

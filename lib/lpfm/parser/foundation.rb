@@ -28,7 +28,7 @@ module LPFM
             require 'yaml'
             metadata = YAML.safe_load(yaml_content) || {}
             [metadata, remaining_content]
-          rescue => e
+          rescue StandardError => e
             raise Error, "Invalid YAML frontmatter: #{e.message}"
           end
         else
