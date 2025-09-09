@@ -153,14 +153,6 @@ RSpec/SpecFilePathFormat:
     - '**/spec/routing/**/*'
     - 'spec/parser_ruby_spec.rb'
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, AllowComments.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'lib/lpfm/parser/ruby.rb'
-
 # Offense count: 13
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: MinBodyLength, AllowConsecutiveConditionals.

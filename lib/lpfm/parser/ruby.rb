@@ -495,8 +495,6 @@ module LPFM
           nil
         when Prism::SymbolNode
           node.unescaped.to_sym
-        else
-          nil
         end
       end
 
@@ -506,8 +504,6 @@ module LPFM
           node.unescaped
         when Prism::StringNode
           node.unescaped
-        else
-          nil
         end
       end
 
