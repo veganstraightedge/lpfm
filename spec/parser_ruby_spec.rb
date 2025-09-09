@@ -173,7 +173,7 @@ RSpec.describe LPFM::Parser::Ruby do
               expect(method).to be_a(LPFM::Data::MethodDefinition)
               expect(method.name).to be_a(String)
               expect(method.name).not_to be_empty
-              expect([:public, :private, :protected]).to include(method.visibility)
+              expect(%i[public private protected]).to include(method.visibility)
               expect(method.arguments).to be_an(Array)
             end
           end
@@ -189,7 +189,7 @@ RSpec.describe LPFM::Parser::Ruby do
               expect(method).to be_a(LPFM::Data::MethodDefinition)
               expect(method.name).to be_a(String)
               expect(method.name).not_to be_empty
-              expect([:public, :private, :protected]).to include(method.visibility)
+              expect(%i[public private protected]).to include(method.visibility)
             end
           end
         end
