@@ -150,16 +150,16 @@ This document outlines the development roadmap for the Literate Programming Flav
 - [ ] Create `bin/lpfm` executable
 - [ ] Implement argument parsing for input/output files
 - [ ] Support format detection from file extensions
-- [ ] Add help and usage information
-- [ ] Handle errors gracefully with user-friendly messages
-
-### 3.2 CLI Features
-- [ ] Support multiple input  formats: `.lpfm`, `.rb`, `.md`
-- [ ] Support multiple output formats: `.lpfm`, `.rb`, `.md`
 - [ ] Support output to stdout
 - [ ] Support output to file
 - [ ] Support input from stdout
 - [ ] Support input from file
+
+### 3.2 CLI Features
+- [ ] Support multiple input  formats: `.lpfm`, `.rb`, `.md`
+- [ ] Support multiple output formats: `.lpfm`, `.rb`, `.md`
+- [ ] Handle errors gracefully with user-friendly messages
+- [ ] Add help and usage information
 - [ ] Add verbose/quiet modes
 - [ ] Add validation mode (syntax checking)
 - [ ] Support batch processing of multiple files
