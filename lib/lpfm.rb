@@ -173,9 +173,8 @@ module LPFM
     end
 
     # Convert to Markdown with fenced Ruby code blocks
-    def to_markdown(include_prose: true)
-      converter = Converter::Markdown.new(self)
-      converter.convert(include_prose: include_prose)
+    def to_markdown
+      Converter::Markdown.new(self).convert
     end
     alias to_md to_markdown
   end
