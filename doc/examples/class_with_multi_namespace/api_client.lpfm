@@ -1,6 +1,6 @@
 # API::V1::Client
 
-## initialize(api_key:, base_url: 'https://api.example.com')
+## initialize(api_key:, base_url: "https://api.example.com")
 @api_key = api_key
 @base_url = base_url
 @headers = {

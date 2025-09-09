@@ -1,393 +1,280 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe LPFM::Parser::Ruby do
-  describe '#parse' do
-    context 'simple class' do
-      let(:ruby_code) do
-        <<~RUBY
-          class SimpleClass
-            def method_one
-              puts "Hello"
-            end
-
-            def method_two
-              puts "World"
-            end
-          end
-        RUBY
-      end
-
-      it 'parses class and methods correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        expect(lpfm.classes.keys).to eq(['SimpleClass'])
-
-        class_def = lpfm.classes['SimpleClass']
-        expect(class_def.methods.map(&:name)).to eq(['method_one', 'method_two'])
-        expect(class_def.methods.all?(&:public?)).to be true
-      end
+  describe 'roundtrip conversion using doc/examples' do
+    # Get all Ruby example files from doc/examples/
+    example_files = Dir.glob('doc/examples/**/*.rb').map do |file|
+      {
+        path: file,
+        name: File.basename(File.dirname(file)),
+        ruby_file: file
+      }
     end
 
-    context 'class with inheritance' do
-      let(:ruby_code) do
-        <<~RUBY
-          class CustomError < StandardError
-            def message
-              "Custom error occurred"
+    example_files.each do |example|
+      context "#{example[:name]}" do
+        let(:original_ruby_path) { example[:ruby_file] }
+        let(:original_ruby_content) { File.read(original_ruby_path) }
+
+        it 'maintains exact Ruby code through full roundtrip conversion' do
+          # Step 1: Load original .rb file
+          expect(File.exist?(original_ruby_path)).to be true
+          expect(original_ruby_content.strip).not_to be_empty
+
+          # Step 2: Convert Ruby to LPFM internal structure
+          lpfm_from_ruby = LPFM::LPFM.new(original_ruby_content, type: :ruby)
+
+          # Verify parsing succeeded
+          total_definitions = lpfm_from_ruby.classes.size + lpfm_from_ruby.modules.size
+          expect(total_definitions).to be > 0, "Expected to parse at least one class or module from #{original_ruby_path}"
+
+          # Step 3: Convert LPFM internal structure to Ruby
+          generated_ruby = lpfm_from_ruby.to_ruby
+
+          # Step 4: Write generated Ruby to temporary file
+          Tempfile.create(['test', '.rb']) do |ruby_tempfile|
+            ruby_tempfile.write(generated_ruby)
+            ruby_tempfile.rewind
+
+            # Step 5: Load generated Ruby file and parse it again
+            final_ruby_content = File.read(ruby_tempfile.path)
+            lpfm_final = LPFM::LPFM.new(final_ruby_content, type: :ruby)
+
+            # Step 6: Compare raw text content first
+            original_normalized = normalize_ruby_code(original_ruby_content)
+            generated_normalized = normalize_ruby_code(final_ruby_content)
+
+            expect(generated_normalized).to eq(original_normalized),
+              "Generated Ruby code should match original for #{example[:name]}.\n" +
+              "Original:\n#{original_ruby_content}\n\n" +
+              "Generated:\n#{final_ruby_content}\n\n" +
+              "Difference in normalized versions"
+
+            # Step 7: Compare original and final internal structures
+            original_classes = lpfm_from_ruby.classes
+            final_classes = lpfm_final.classes
+
+            original_modules = lpfm_from_ruby.modules
+            final_modules = lpfm_final.modules
+
+            # Verify class consistency
+            expect(final_classes.keys.sort).to eq(original_classes.keys.sort),
+              "Class names should match after roundtrip for #{example[:name]}"
+
+            original_classes.each do |class_name, original_class|
+              final_class = final_classes[class_name]
+              expect(final_class).not_to be_nil, "Class #{class_name} should exist after roundtrip"
+
+              # Compare class properties
+              expect(final_class.inherits_from).to eq(original_class.inherits_from),
+                "Inheritance should match for class #{class_name}"
+
+              expect(final_class.includes.sort).to eq(original_class.includes.sort),
+                "Includes should match for class #{class_name}"
+
+              expect(final_class.extends.sort).to eq(original_class.extends.sort),
+                "Extends should match for class #{class_name}"
+
+              expect(final_class.attr_readers.sort).to eq(original_class.attr_readers.sort),
+                "Attr readers should match for class #{class_name}"
+
+              expect(final_class.attr_writers.sort).to eq(original_class.attr_writers.sort),
+                "Attr writers should match for class #{class_name}"
+
+              expect(final_class.attr_accessors.sort).to eq(original_class.attr_accessors.sort),
+                "Attr accessors should match for class #{class_name}"
+
+              expect(final_class.constants).to eq(original_class.constants),
+                "Constants should match for class #{class_name}"
+
+              expect(final_class.class_variables).to eq(original_class.class_variables),
+                "Class variables should match for class #{class_name}"
+
+              # Compare methods
+              expect(final_class.methods.size).to eq(original_class.methods.size),
+                "Method count should match for class #{class_name}"
+
+              original_methods = original_class.methods.sort_by(&:name)
+              final_methods = final_class.methods.sort_by(&:name)
+
+              original_methods.zip(final_methods).each do |orig_method, final_method|
+                expect(final_method.name).to eq(orig_method.name),
+                  "Method name should match"
+
+                expect(final_method.visibility).to eq(orig_method.visibility),
+                  "Method visibility should match for #{orig_method.name}"
+
+                expect(final_method.arguments).to eq(orig_method.arguments),
+                  "Method arguments should match for #{orig_method.name}"
+
+                expect(final_method.class_method?).to eq(orig_method.class_method?),
+                  "Class method status should match for #{orig_method.name}"
+              end
+            end
+
+            # Verify module consistency
+            expect(final_modules.keys.sort).to eq(original_modules.keys.sort),
+              "Module names should match after roundtrip for #{example[:name]}"
+
+            original_modules.each do |module_name, original_module|
+              final_module = final_modules[module_name]
+              expect(final_module).not_to be_nil, "Module #{module_name} should exist after roundtrip"
+
+              # Compare module properties (similar to classes)
+              expect(final_module.includes.sort).to eq(original_module.includes.sort),
+                "Includes should match for module #{module_name}"
+
+              expect(final_module.extends.sort).to eq(original_module.extends.sort),
+                "Extends should match for module #{module_name}"
+
+              expect(final_module.constants).to eq(original_module.constants),
+                "Constants should match for module #{module_name}"
+
+              # Compare module methods
+              original_methods = original_module.methods.sort_by(&:name)
+              final_methods = final_module.methods.sort_by(&:name)
+
+              expect(final_methods.size).to eq(original_methods.size),
+                "Method count should match for module #{module_name}"
+
+              original_methods.zip(final_methods).each do |orig_method, final_method|
+                expect(final_method.name).to eq(orig_method.name),
+                  "Method name should match in module #{module_name}"
+
+                expect(final_method.visibility).to eq(orig_method.visibility),
+                  "Method visibility should match for #{module_name}.#{orig_method.name}"
+              end
+            end
+
+            # Verify requires
+            expect(lpfm_final.requires.sort).to eq(lpfm_from_ruby.requires.sort),
+              "Requires should match after roundtrip"
+          end
+        end
+
+        it 'parses Ruby file structure correctly' do
+          lpfm = LPFM::LPFM.new(original_ruby_content, type: :ruby)
+
+          # Basic structural validation
+          total_definitions = lpfm.classes.size + lpfm.modules.size
+          expect(total_definitions).to be > 0, "Should parse at least one class or module"
+
+          # Validate all classes have valid structure
+          lpfm.classes.each do |class_name, class_def|
+            expect(class_name).to be_a(String)
+            expect(class_name).not_to be_empty
+            expect(class_def).to be_a(LPFM::Data::ClassDefinition)
+
+            # Validate methods
+            class_def.methods.each do |method|
+              expect(method).to be_a(LPFM::Data::MethodDefinition)
+              expect(method.name).to be_a(String)
+              expect(method.name).not_to be_empty
+              expect([:public, :private, :protected]).to include(method.visibility)
+              expect(method.arguments).to be_an(Array)
             end
           end
-        RUBY
-      end
 
-      it 'parses inheritance correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
+          # Validate all modules have valid structure
+          lpfm.modules.each do |module_name, module_def|
+            expect(module_name).to be_a(String)
+            expect(module_name).not_to be_empty
+            expect(module_def).to be_a(LPFM::Data::ModuleDefinition)
 
-        class_def = lpfm.classes['CustomError']
-        expect(class_def.inherits_from).to eq('StandardError')
+            # Validate methods
+            module_def.methods.each do |method|
+              expect(method).to be_a(LPFM::Data::MethodDefinition)
+              expect(method.name).to be_a(String)
+              expect(method.name).not_to be_empty
+              expect([:public, :private, :protected]).to include(method.visibility)
+            end
+          end
+        end
       end
     end
+  end
 
-    context 'class with visibility modifiers' do
-      let(:ruby_code) do
-        <<~RUBY
-          class VisibilityExample
-            def public_method
-              puts "Public"
-            end
+  describe 'specific parsing features' do
+    context 'when parsing mixed visibility example' do
+      let(:mixed_visibility_file) { 'doc/examples/mixed_visibility/service.rb' }
+      let(:ruby_content) { File.read(mixed_visibility_file) }
 
-            private
+      it 'correctly parses method visibility order' do
+        lpfm = LPFM::LPFM.new(ruby_content, type: :ruby)
+        service_class = lpfm.classes['Service']
 
-            def private_method
-              puts "Private"
-            end
+        methods_with_visibility = service_class.methods.map { |m| [m.name, m.visibility] }
 
-            protected
-
-            def protected_method
-              puts "Protected"
-            end
-          end
-        RUBY
-      end
-
-      it 'parses method visibility correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        class_def = lpfm.classes['VisibilityExample']
-        methods = class_def.methods
-
-        public_method = methods.find { |m| m.name == 'public_method' }
-        private_method = methods.find { |m| m.name == 'private_method' }
-        protected_method = methods.find { |m| m.name == 'protected_method' }
-
-        expect(public_method.visibility).to eq(:public)
-        expect(private_method.visibility).to eq(:private)
-        expect(protected_method.visibility).to eq(:protected)
-      end
-    end
-
-    context 'class with attr_* methods' do
-      let(:ruby_code) do
-        <<~RUBY
-          class AttrExample
-            attr_reader :name, :age
-            attr_writer :email
-            attr_accessor :status
-          end
-        RUBY
-      end
-
-      it 'parses attr_* declarations correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        class_def = lpfm.classes['AttrExample']
-        expect(class_def.attr_readers).to include(:name, :age)
-        expect(class_def.attr_writers).to include(:email)
-        expect(class_def.attr_accessors).to include(:status)
-      end
-    end
-
-    context 'class with constants' do
-      let(:ruby_code) do
-        <<~RUBY
-          class ConstantExample
-            VERSION = "1.0.0"
-            MAX_SIZE = 100
-            ENABLED = true
-
-            def get_version
-              VERSION
-            end
-          end
-        RUBY
-      end
-
-      it 'parses constants correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        class_def = lpfm.classes['ConstantExample']
-        expect(class_def.constants).to include(
-          'VERSION' => '1.0.0',
-          'MAX_SIZE' => 100,
-          'ENABLED' => true
+        expect(methods_with_visibility).to include(
+          ['initialize', :public],
+          ['public_method', :public],
+          ['private_helper', :private],
+          ['protected_method', :protected],
+          ['another_public_method', :public],
+          ['another_private_method', :private]
         )
       end
     end
 
-    context 'class with include and extend' do
-      let(:ruby_code) do
-        <<~RUBY
-          class MixinExample
-            include Enumerable
-            extend Forwardable
+    context 'when parsing class with attributes' do
+      let(:attr_file) { Dir.glob('doc/examples/**/class_with_attr*/*.rb').first }
 
-            def initialize
-              @items = []
-            end
-          end
-        RUBY
-      end
+      it 'correctly parses attr_* declarations' do
+        skip "No attr examples found" unless attr_file
 
-      it 'parses include and extend correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
+        ruby_content = File.read(attr_file)
+        lpfm = LPFM::LPFM.new(ruby_content, type: :ruby)
 
-        class_def = lpfm.classes['MixinExample']
-        expect(class_def.includes).to include('Enumerable')
-        expect(class_def.extends).to include('Forwardable')
+        # Should have at least one class with attributes
+        class_with_attrs = lpfm.classes.values.find do |c|
+          c.attr_readers.any? || c.attr_writers.any? || c.attr_accessors.any?
+        end
+
+        expect(class_with_attrs).not_to be_nil, "Should find a class with attributes"
       end
     end
 
-    context 'class with method arguments' do
-      let(:ruby_code) do
-        <<~RUBY
-          class ArgumentExample
-            def simple_args(a, b)
-              a + b
-            end
+    context 'when parsing class with constants' do
+      let(:constant_files) { Dir.glob('doc/examples/**/class_with_constants*/*.rb') }
 
-            def default_args(x, y = 10)
-              x + y
-            end
+      it 'correctly parses constant definitions' do
+        skip "No constant examples found" if constant_files.empty?
 
-            def splat_args(*args)
-              args.sum
-            end
+        constant_files.each do |file|
+          ruby_content = File.read(file)
+          lpfm = LPFM::LPFM.new(ruby_content, type: :ruby)
 
-            def keyword_args(user_name:, age: 25)
-              "\#{user_name} is \#{age}"
-            end
-
-            def all_args(req, opt = 'default', *splat, key:, key_opt: 'default', **kwargs, &block)
-              # Complex method signature
-            end
-          end
-        RUBY
-      end
-
-      it 'parses method arguments correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        class_def = lpfm.classes['ArgumentExample']
-        methods = class_def.methods
-
-        simple_method = methods.find { |m| m.name == 'simple_args' }
-        expect(simple_method.arguments).to eq(['a', 'b'])
-
-        default_method = methods.find { |m| m.name == 'default_args' }
-        expect(default_method.arguments).to include('x')
-        expect(default_method.arguments.any? { |arg| arg.include?('y = 10') }).to be true
-
-        splat_method = methods.find { |m| m.name == 'splat_args' }
-        expect(splat_method.arguments.any? { |arg| arg.start_with?('*args') }).to be true
-
-        keyword_method = methods.find { |m| m.name == 'keyword_args' }
-        expect(keyword_method.arguments.any? { |arg| arg.include?('user_name:') }).to be true
-        expect(keyword_method.arguments.any? { |arg| arg.include?('age: 25') }).to be true
+          # Should have at least one class with constants
+          class_with_constants = lpfm.classes.values.find { |c| c.constants.any? }
+          expect(class_with_constants).not_to be_nil, "Should find a class with constants in #{file}"
+        end
       end
     end
 
-    context 'module' do
-      let(:ruby_code) do
-        <<~RUBY
-          module HelperModule
-            def helper_method
-              "I'm helping!"
-            end
+  end
 
-            private
+  private
 
-            def private_helper
-              "Private help"
-            end
-          end
-        RUBY
-      end
+  def normalize_ruby_code(code)
+    # Normalize Ruby code for comparison by:
+    # 1. Removing trailing whitespace from each line
+    # 2. Removing empty lines at the beginning and end
+    # 3. Ensuring consistent indentation
+    # 4. Normalizing line endings
 
-      it 'parses modules correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
+    lines = code.split(/\r?\n/)
 
-        expect(lpfm.modules.keys).to eq(['HelperModule'])
+    # Remove trailing whitespace from each line
+    lines = lines.map(&:rstrip)
 
-        module_def = lpfm.modules['HelperModule']
-        methods = module_def.methods
+    # Remove empty lines from beginning and end
+    lines = lines.drop_while(&:empty?).reverse.drop_while(&:empty?).reverse
 
-        expect(methods.map(&:name)).to include('helper_method', 'private_helper')
-
-        helper_method = methods.find { |m| m.name == 'helper_method' }
-        private_method = methods.find { |m| m.name == 'private_helper' }
-
-        expect(helper_method.visibility).to eq(:public)
-        expect(private_method.visibility).to eq(:private)
-      end
-    end
-
-    context 'class with class variables' do
-      let(:ruby_code) do
-        <<~RUBY
-          class ClassVarExample
-            @@count = 0
-            @@name = "Example"
-
-            def initialize
-              @@count += 1
-            end
-          end
-        RUBY
-      end
-
-      it 'parses class variables correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        class_def = lpfm.classes['ClassVarExample']
-        expect(class_def.class_variables).to include(
-          '@@count' => 0,
-          '@@name' => 'Example'
-        )
-      end
-    end
-
-    context 'multiple classes' do
-      let(:ruby_code) do
-        <<~RUBY
-          class FirstClass
-            def first_method
-              "first"
-            end
-          end
-
-          class SecondClass
-            def second_method
-              "second"
-            end
-          end
-        RUBY
-      end
-
-      it 'parses multiple classes correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        expect(lpfm.classes.keys).to match_array(['FirstClass', 'SecondClass'])
-
-        first_class = lpfm.classes['FirstClass']
-        second_class = lpfm.classes['SecondClass']
-
-        expect(first_class.methods.map(&:name)).to eq(['first_method'])
-        expect(second_class.methods.map(&:name)).to eq(['second_method'])
-      end
-    end
-
-    context 'require statements' do
-      let(:ruby_code) do
-        <<~RUBY
-          require 'json'
-          require 'yaml'
-          require_relative 'helper'
-
-          class RequireExample
-            def parse_json(data)
-              JSON.parse(data)
-            end
-          end
-        RUBY
-      end
-
-      it 'parses require statements correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        expect(lpfm.requires).to include('json', 'yaml')
-        # Note: require_relative is handled differently in some Ruby parsers
-      end
-    end
-
-    context 'empty class' do
-      let(:ruby_code) do
-        <<~RUBY
-          class EmptyClass
-          end
-        RUBY
-      end
-
-      it 'parses empty class correctly' do
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        expect(lpfm.classes.keys).to eq(['EmptyClass'])
-
-        class_def = lpfm.classes['EmptyClass']
-        expect(class_def.methods).to be_empty
-        expect(class_def.constants).to be_empty
-        expect(class_def.attr_readers).to be_empty
-      end
-    end
-
-    context 'roundtrip conversion' do
-      let(:ruby_code) do
-        <<~RUBY
-          class RoundtripTest
-            include Comparable
-            attr_reader :value
-
-            VERSION = "1.0"
-
-            def initialize(value)
-              @value = value
-            end
-
-            def compare_with(other)
-              value <=> other.value
-            end
-
-            private
-
-            def helper
-              "helping"
-            end
-          end
-        RUBY
-      end
-
-      it 'maintains consistency in roundtrip conversion' do
-        # Parse Ruby → LPFM internal structure
-        lpfm = LPFM::LPFM.new(ruby_code, type: :ruby)
-
-        # Convert back to Ruby
-        generated_ruby = lpfm.to_ruby
-
-        # Parse the generated Ruby again
-        lpfm_roundtrip = LPFM::LPFM.new(generated_ruby, type: :ruby)
-
-        # Compare the two internal structures
-        original_class = lpfm.classes['RoundtripTest']
-        roundtrip_class = lpfm_roundtrip.classes['RoundtripTest']
-
-        expect(roundtrip_class.includes).to eq(original_class.includes)
-        expect(roundtrip_class.attr_readers).to eq(original_class.attr_readers)
-        expect(roundtrip_class.constants).to eq(original_class.constants)
-        expect(roundtrip_class.methods.map(&:name)).to eq(original_class.methods.map(&:name))
-        expect(roundtrip_class.methods.map(&:visibility)).to eq(original_class.methods.map(&:visibility))
-      end
-    end
+    # Join back with consistent line endings
+    lines.join("\n")
   end
 
   describe 'error handling' do

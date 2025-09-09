@@ -2,7 +2,7 @@
 module API
   module V1
     class Client
-      def initialize(api_key:, base_url: 'https://api.example.com')
+      def initialize(api_key:, base_url: "https://api.example.com")
         @api_key = api_key
         @base_url = base_url
         @headers = {
