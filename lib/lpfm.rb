@@ -5,6 +5,7 @@ require_relative "lpfm/data/class_definition"
 require_relative "lpfm/data/module_definition"
 require_relative "lpfm/data/method_definition"
 require_relative "lpfm/parser/lpfm"
+require_relative "lpfm/converter/ruby"
 
 module LPFM
   class Error < StandardError; end
@@ -144,6 +145,12 @@ module LPFM
 
     def has_requires?
       !@requires.empty?
+    end
+
+    # Convert to Ruby code
+    def to_ruby(include_prose_as_comments: false)
+      converter = Converter::Ruby.new(self)
+      converter.convert(include_prose_as_comments: include_prose_as_comments)
     end
   end
 end
