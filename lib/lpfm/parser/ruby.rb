@@ -80,7 +80,7 @@ module LPFM
         class_def.inherits_from = superclass if superclass
 
         # Set namespace if we're inside modules
-        class_def.instance_variable_set(:@namespace, namespace_path.dup) if !namespace_path.empty?
+        class_def.instance_variable_set(:@namespace, namespace_path.dup) unless namespace_path.empty?
 
         # Process class body
         if node.body
@@ -113,7 +113,7 @@ module LPFM
         module_def = @lpfm_object.get_module(module_name)
 
         # Set namespace if we're inside other modules
-        module_def.instance_variable_set(:@namespace, namespace_path.dup) if !namespace_path.empty?
+        module_def.instance_variable_set(:@namespace, namespace_path.dup) unless namespace_path.empty?
 
         # Track if this module has its own content (not just nested modules/classes)
         has_own_content = false
@@ -145,7 +145,7 @@ module LPFM
         end
 
         # If this module only contains nested modules/classes, mark it as namespace-only
-        module_def.instance_variable_set(:@is_namespace, true) if !has_own_content
+        module_def.instance_variable_set(:@is_namespace, true) unless has_own_content
       end
 
       def process_singleton_class_node(node, parent_class_or_module)

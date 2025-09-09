@@ -14,7 +14,7 @@ module LPFM
         # Generate single fenced code block with all Ruby code
         ruby_code = generate_all_ruby_code
 
-        if !ruby_code.empty?
+        unless ruby_code.empty?
           output << "```ruby"
           output << ruby_code
           output << "```"
@@ -28,7 +28,7 @@ module LPFM
 
         # Add requires at the top
         requires_output = format_requires(@lpfm_object.requires)
-        if !requires_output.empty?
+        unless requires_output.empty?
           output << requires_output.rstrip
           output << ""
         end
@@ -182,7 +182,7 @@ module LPFM
         class_def.methods.each do |method|
           if method.singleton_method?
             # This is a class method from class << self block
-            if !in_singleton_block
+            unless in_singleton_block
               # Start the singleton block
               body_parts << "" if method_index > 0
               body_parts << "class << self"
