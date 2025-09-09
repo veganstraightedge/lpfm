@@ -303,10 +303,10 @@ module LPFM
         return unless parent_class_or_module
 
         constant_name = case node
-                       when Prism::ConstantWriteNode
-                         node.name.to_s
-                       when Prism::ConstantPathWriteNode
-                         extract_constant_name(node.target)
+                        when Prism::ConstantWriteNode
+                          node.name.to_s
+                        when Prism::ConstantPathWriteNode
+                          extract_constant_name(node.target)
                        end
 
         if constant_name
