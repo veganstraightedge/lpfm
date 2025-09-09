@@ -380,7 +380,7 @@ module LPFM
         # Don't add self. prefix for object singleton methods that already contain dots
         method_prefix = if method.class_method? && !method.name.include?('.')
                          "self."
-                       else
+                        else
                          ""
                        end
         method_args = format_method_arguments(method.arguments)
