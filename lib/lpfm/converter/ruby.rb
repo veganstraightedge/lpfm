@@ -12,19 +12,26 @@ module LPFM
         output = []
 
         # Add requires at the top
-        output << format_requires(@lpfm_object.requires)
+        requires_output = format_requires(@lpfm_object.requires)
+        if !requires_output.empty?
+          output << requires_output.rstrip
+          output << ""
+        end
 
         # Convert classes
-        @lpfm_object.classes.each do |name, class_def|
+        @lpfm_object.classes.each_with_index do |(name, class_def), index|
+          output << "" if index > 0  # Add blank line between classes
           output << convert_class(class_def, include_prose_as_comments)
         end
 
         # Convert modules
-        @lpfm_object.modules.each do |name, module_def|
+        @lpfm_object.modules.each_with_index do |(name, module_def), index|
+          # Add blank line if we have classes before modules, or between modules
+          output << "" if (!@lpfm_object.classes.empty? && index == 0) || index > 0
           output << convert_module(module_def, include_prose_as_comments)
         end
 
-        output.reject(&:empty?).join("\n")
+        output.join("\n")
       end
 
       private

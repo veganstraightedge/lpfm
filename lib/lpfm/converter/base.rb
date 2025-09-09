@@ -57,7 +57,7 @@ module LPFM
 
       def format_requires(requires)
         return "" if requires.empty?
-        requires.map { |req| "require '#{req}'" }.join("\n") + "\n\n"
+        requires.map { |req| "require '#{req}'" }.join("\n") + "\n"
       end
 
       def extract_prose_sections(object)
