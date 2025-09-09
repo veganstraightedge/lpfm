@@ -156,12 +156,12 @@ module LPFM
 
         # Create nested modules for namespace
         namespace_parts.each do |namespace|
-          unless @lpfm_object.get_module(namespace)
-            @lpfm_object.add_module(namespace)
-            # Mark this as a namespace module
-            namespace_module = @lpfm_object.get_module(namespace)
-            namespace_module.instance_variable_set(:@is_namespace, true)
-          end
+          next if @lpfm_object.get_module(namespace)
+
+          @lpfm_object.add_module(namespace)
+          # Mark this as a namespace module
+          namespace_module = @lpfm_object.get_module(namespace)
+          namespace_module.instance_variable_set(:@is_namespace, true)
         end
 
         # Create the actual class

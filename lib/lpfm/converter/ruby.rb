@@ -49,15 +49,15 @@ module LPFM
 
         # Group modules by namespace (excluding namespace modules themselves)
         @lpfm_object.modules.each_value do |module_def|
-          unless module_def.is_namespace?
-            namespace = module_def.namespace
-            if namespace && !namespace.empty?
-              namespace_key = namespace.join('::')
-              namespace_groups[namespace_key] ||= { modules: [], classes: [] }
-              namespace_groups[namespace_key][:modules] << module_def
-            else
-              standalone_items << { type: :module, item: module_def }
-            end
+          next if module_def.is_namespace?
+
+          namespace = module_def.namespace
+          if namespace && !namespace.empty?
+            namespace_key = namespace.join('::')
+            namespace_groups[namespace_key] ||= { modules: [], classes: [] }
+            namespace_groups[namespace_key][:modules] << module_def
+          else
+            standalone_items << { type: :module, item: module_def }
           end
         end
 
