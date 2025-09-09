@@ -163,15 +163,6 @@ Style/GuardClause:
     - 'lib/lpfm/parser/lpfm.rb'
     - 'lib/lpfm/parser/ruby.rb'
 
-# Offense count: 4
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedReceivers.
-# AllowedReceivers: Thread.current
-Style/HashEachMethods:
-  Exclude:
-    - 'lib/lpfm/converter/markdown.rb'
-    - 'lib/lpfm/converter/ruby.rb'
-
 # Offense count: 1
 # Configuration parameters: MinBranchesCount.
 Style/HashLikeCase:

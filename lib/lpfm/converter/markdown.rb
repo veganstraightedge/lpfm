@@ -38,7 +38,7 @@ module LPFM
         standalone_items = []
 
         # Group classes by namespace
-        @lpfm_object.classes.each do |name, class_def|
+        @lpfm_object.classes.each_value do |class_def|
           namespace = class_def.namespace
           if namespace && !namespace.empty?
             namespace_key = namespace.join('::')
@@ -50,7 +50,7 @@ module LPFM
         end
 
         # Group modules by namespace (excluding namespace modules themselves)
-        @lpfm_object.modules.each do |name, module_def|
+        @lpfm_object.modules.each_value do |module_def|
           unless module_def.is_namespace?
             namespace = module_def.namespace
             if namespace && !namespace.empty?
