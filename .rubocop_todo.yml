@@ -62,11 +62,6 @@ RSpec/DescribeClass:
     - 'spec/converter_markdown_spec.rb'
     - 'spec/examples_spec.rb'
 
-# Offense count: 15
-# Configuration parameters: CountAsOne.
-RSpec/ExampleLength:
-  Max: 83
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 RSpec/ExpectActual:
