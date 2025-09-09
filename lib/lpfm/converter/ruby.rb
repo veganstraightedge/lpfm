@@ -244,26 +244,26 @@ module LPFM
         end
 
         # Close singleton block if we ended while still in one
-        if in_singleton_block
-          singleton_methods.each_with_index do |singleton_method, index|
-            body_parts << "" if index > 0
-            body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
-          end
-          body_parts << "end"
+        return unless in_singleton_block
+
+        singleton_methods.each_with_index do |singleton_method, index|
+          body_parts << "" if index > 0
+          body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
         end
+        body_parts << "end"
       end
 
       def add_aliases_to_body(body_parts, class_def, yaml_attrs, inline_attrs)
-        if class_def.has_aliases?
-          # Only add spacing if there are attrs or methods before aliases
-          has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
-          body_parts << "" if has_any_attrs || class_def.has_methods?
-          class_def.aliases.each do |alias_name, original_method|
-            body_parts << "alias #{alias_name} #{original_method}"
-          end
-          class_def.alias_methods.each do |alias_name, original_method|
-            body_parts << "alias_method :#{alias_name}, :#{original_method}"
-          end
+        return unless class_def.has_aliases?
+
+        # Only add spacing if there are attrs or methods before aliases
+        has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
+        body_parts << "" if has_any_attrs || class_def.has_methods?
+        class_def.aliases.each do |alias_name, original_method|
+          body_parts << "alias #{alias_name} #{original_method}"
+        end
+        class_def.alias_methods.each do |alias_name, original_method|
+          body_parts << "alias_method :#{alias_name}, :#{original_method}"
         end
       end
 

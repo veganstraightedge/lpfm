@@ -95,9 +95,9 @@ module LPFM
       # Allow filename inference if we have methods (H2) or YAML frontmatter but no H1, AND we have a filename
       can_infer_from_filename = @filename && (has_other_headings || has_yaml_frontmatter) && has_content
 
-      unless has_h1_heading || can_infer_from_filename
-        raise Error, "LPFM content must contain at least one H1 heading or be suitable for filename-based inference"
-      end
+      return if has_h1_heading || can_infer_from_filename
+
+      raise Error, "LPFM content must contain at least one H1 heading or be suitable for filename-based inference"
     end
 
     def validate_ruby_content

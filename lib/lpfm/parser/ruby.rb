@@ -83,24 +83,24 @@ module LPFM
         class_def.instance_variable_set(:@namespace, namespace_path.dup) unless namespace_path.empty?
 
         # Process class body
-        if node.body
-          current_visibility = :public
-          node.body.body.each do |statement|
-            case statement
-            when Prism::CallNode
-              # Handle visibility modifiers and method calls
-              if is_visibility_call?(statement)
-                current_visibility = extract_visibility(statement)
-              else
-                process_call_node(statement, class_def)
-              end
-            when Prism::DefNode
-              # Instance method
-              method = process_method_node(statement, class_def)
-              method&.set_visibility(current_visibility)
+        return unless node.body
+
+        current_visibility = :public
+        node.body.body.each do |statement|
+          case statement
+          when Prism::CallNode
+            # Handle visibility modifiers and method calls
+            if is_visibility_call?(statement)
+              current_visibility = extract_visibility(statement)
             else
-              process_statement(statement, class_def, namespace_path + [class_name])
+              process_call_node(statement, class_def)
             end
+          when Prism::DefNode
+            # Instance method
+            method = process_method_node(statement, class_def)
+            method&.set_visibility(current_visibility)
+          else
+            process_statement(statement, class_def, namespace_path + [class_name])
           end
         end
       end
@@ -225,28 +225,28 @@ module LPFM
 
       def handle_require_call(node)
         # Extract require argument
-        if node.arguments&.arguments&.first&.type == :string_node
-          requirement = node.arguments.arguments.first.unescaped
-          @lpfm_object.add_require(requirement)
-        end
+        return unless node.arguments&.arguments&.first&.type == :string_node
+
+        requirement = node.arguments.arguments.first.unescaped
+        @lpfm_object.add_require(requirement)
       end
 
       def handle_include_call(node, parent_class_or_module)
         return unless parent_class_or_module
 
-        if node.arguments&.arguments&.first
-          module_name = extract_constant_name(node.arguments.arguments.first)
-          parent_class_or_module.add_include(module_name) if module_name
-        end
+        return unless node.arguments&.arguments&.first
+
+        module_name = extract_constant_name(node.arguments.arguments.first)
+        parent_class_or_module.add_include(module_name) if module_name
       end
 
       def handle_extend_call(node, parent_class_or_module)
         return unless parent_class_or_module
 
-        if node.arguments&.arguments&.first
-          module_name = extract_constant_name(node.arguments.arguments.first)
-          parent_class_or_module.add_extend(module_name) if module_name
-        end
+        return unless node.arguments&.arguments&.first
+
+        module_name = extract_constant_name(node.arguments.arguments.first)
+        parent_class_or_module.add_extend(module_name) if module_name
       end
 
       def handle_attr_call(node, parent_class_or_module, attr_type)
@@ -291,10 +291,10 @@ module LPFM
                           extract_constant_name(node.target)
                         end
 
-        if constant_name
-          value = extract_literal_value(node.value)
-          parent_class_or_module.add_constant(constant_name, value)
-        end
+        return unless constant_name
+
+        value = extract_literal_value(node.value)
+        parent_class_or_module.add_constant(constant_name, value)
       end
 
       def process_class_variable_assignment(node, parent_class_or_module)
