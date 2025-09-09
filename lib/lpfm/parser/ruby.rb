@@ -423,7 +423,7 @@ module LPFM
               first_indent = non_empty_lines.first[/^\s*/].length
 
               if non_empty_lines.length > 1
-                other_indents = non_empty_lines[1..-1].map { |line| line[/^\s*/].length }
+                other_indents = non_empty_lines[1..].map { |line| line[/^\s*/].length }
                 min_other_indent = other_indents.min || 0
 
                 if first_indent == 0 && min_other_indent > 0
@@ -434,7 +434,7 @@ module LPFM
                     elsif line == lines.first
                       line # Keep first line as-is
                     else
-                      line.length > min_other_indent ? line[min_other_indent..-1] : line.lstrip
+                      line.length > min_other_indent ? line[min_other_indent..] : line.lstrip
                     end
                   end
                 else
@@ -444,7 +444,7 @@ module LPFM
                     if line.strip.empty?
                       ""
                     else
-                      line.length > min_indent ? line[min_indent..-1] : line.lstrip
+                      line.length > min_indent ? line[min_indent..] : line.lstrip
                     end
                   end
                 end
