@@ -69,21 +69,26 @@ module LPFM
           body_parts << ""
         end
 
-        # Add attr_* methods
-        body_parts.concat(format_attr_methods(class_def))
-
-        # Add constants
+        # Add constants first
         class_def.constants.each do |name, value|
           body_parts << "#{name} = #{normalize_constant_value(value)}"
         end
+
+        # Add spacing after constants if we have attr methods or methods
+        if class_def.has_constants? && (class_def.has_attr_methods? || class_def.has_methods?)
+          body_parts << ""
+        end
+
+        # Add attr_* methods
+        body_parts.concat(format_attr_methods(class_def))
 
         # Add class variables
         class_def.class_variables.each do |name, value|
           body_parts << "#{name} = #{normalize_constant_value(value)}"
         end
 
-        # Add spacing after constants/class variables if we have methods
-        if class_def.has_methods? && (class_def.has_constants? || class_def.has_class_variables? || class_def.has_attr_methods?)
+        # Add spacing after attr methods or class variables if we have instance methods
+        if class_def.has_methods? && (class_def.has_attr_methods? || class_def.has_class_variables?) && !class_def.has_constants?
           body_parts << ""
         end
 
@@ -98,23 +103,23 @@ module LPFM
           body_parts << convert_method(method, include_prose)
         end
 
+        # Add protected methods first (as they appear first in LPFM)
+        unless protected_methods.empty?
+          body_parts << ""
+          body_parts << "protected"
+          body_parts << ""
+          protected_methods.each_with_index do |method, index|
+            body_parts << "" if index > 0  # Add blank line between methods
+            body_parts << convert_method(method, include_prose)
+          end
+        end
+
         # Add private methods
         unless private_methods.empty?
           body_parts << ""
           body_parts << "private"
           body_parts << ""
           private_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0  # Add blank line between methods
-            body_parts << convert_method(method, include_prose)
-          end
-        end
-
-        # Add protected methods
-        unless protected_methods.empty?
-          body_parts << ""
-          body_parts << "protected"
-          body_parts << ""
-          protected_methods.each_with_index do |method, index|
             body_parts << "" if index > 0  # Add blank line between methods
             body_parts << convert_method(method, include_prose)
           end
@@ -174,13 +179,18 @@ module LPFM
           body_parts << ""
         end
 
-        # Add attr_* methods
-        body_parts.concat(format_attr_methods(module_def))
-
-        # Add constants
+        # Add constants first
         module_def.constants.each do |name, value|
           body_parts << "#{name} = #{normalize_constant_value(value)}"
         end
+
+        # Add spacing after constants if we have attr methods
+        if module_def.has_constants? && module_def.has_attr_methods?
+          body_parts << ""
+        end
+
+        # Add attr_* methods
+        body_parts.concat(format_attr_methods(module_def))
 
         # Add class variables
         module_def.class_variables.each do |name, value|
@@ -198,23 +208,23 @@ module LPFM
           body_parts << convert_method(method, include_prose)
         end
 
+        # Add protected methods first (as they appear first in LPFM)
+        unless protected_methods.empty?
+          body_parts << ""
+          body_parts << "protected"
+          body_parts << ""
+          protected_methods.each_with_index do |method, index|
+            body_parts << "" if index > 0  # Add blank line between methods
+            body_parts << convert_method(method, include_prose)
+          end
+        end
+
         # Add private methods
         unless private_methods.empty?
           body_parts << ""
           body_parts << "private"
           body_parts << ""
           private_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0  # Add blank line between methods
-            body_parts << convert_method(method, include_prose)
-          end
-        end
-
-        # Add protected methods
-        unless protected_methods.empty?
-          body_parts << ""
-          body_parts << "protected"
-          body_parts << ""
-          protected_methods.each_with_index do |method, index|
             body_parts << "" if index > 0  # Add blank line between methods
             body_parts << convert_method(method, include_prose)
           end

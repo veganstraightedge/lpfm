@@ -124,18 +124,29 @@ module LPFM
       def process_metadata_for_class_or_module(class_or_module, metadata)
         return unless metadata
 
-        # Handle attr_* methods
-        if metadata['attr_reader']
-          class_or_module.add_attr_reader(*Array(metadata['attr_reader']))
+        # Process attr_* methods in the correct order to match expected output
+        # Collect all attrs by type in the order they should appear
+        attr_readers = []
+        attr_writers = []
+        attr_accessors = []
+
+        # Process nested attr syntax first (name comes from here)
+        if metadata['attr']
+          attr_config = metadata['attr']
+          attr_readers.concat(Array(attr_config['reader'])) if attr_config['reader']
+          attr_writers.concat(Array(attr_config['writer'])) if attr_config['writer']
+          attr_accessors.concat(Array(attr_config['accessor'])) if attr_config['accessor']
         end
 
-        if metadata['attr_writer']
-          class_or_module.add_attr_writer(*Array(metadata['attr_writer']))
-        end
+        # Then add top-level attrs (id comes from here)
+        attr_readers.concat(Array(metadata['attr_reader'])) if metadata['attr_reader']
+        attr_writers.concat(Array(metadata['attr_writer'])) if metadata['attr_writer']
+        attr_accessors.concat(Array(metadata['attr_accessor'])) if metadata['attr_accessor']
 
-        if metadata['attr_accessor']
-          class_or_module.add_attr_accessor(*Array(metadata['attr_accessor']))
-        end
+        # Add them to the class/module
+        class_or_module.add_attr_reader(*attr_readers) unless attr_readers.empty?
+        class_or_module.add_attr_writer(*attr_writers) unless attr_writers.empty?
+        class_or_module.add_attr_accessor(*attr_accessors) unless attr_accessors.empty?
 
         # Handle includes and extends
         if metadata['include']
