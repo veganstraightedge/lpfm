@@ -65,42 +65,9 @@ module LPFM
             process_content_buffer(content_buffer, current_method, current_class_or_module)
             content_buffer.clear
 
-            case heading_info[:level]
-            when 1
-              # H1 defines class or module
-              current_class_or_module = create_class_or_module(heading_info[:title], metadata)
-              current_visibility = :public
-              current_method = nil
-            when 2
-              # H2 defines method, visibility modifier, or singleton class block
-              if is_visibility_modifier?(heading_info[:title])
-                current_visibility = heading_info[:title].strip.downcase.to_sym
-                current_method = nil
-                # Exit singleton block when we hit a visibility modifier
-                current_class_or_module.instance_variable_set(:@in_singleton_block, false)
-              elsif heading_info[:title].strip == 'class << self'
-                # Handle singleton class block - methods following will be class methods
-                current_visibility = :public
-                current_method = nil
-                # Mark that we're in a singleton class context
-                current_class_or_module.instance_variable_set(:@in_singleton_block, true)
-              else
-                # Exit singleton block when we encounter a regular H2 method
-                current_class_or_module.instance_variable_set(:@in_singleton_block, false)
-                # H2 methods default to public visibility
-                current_visibility = :public
-                current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
-              end
-            when 3
-              # H3 defines method within current visibility scope or singleton block
-              if current_class_or_module
-                current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
-                # If we're in a singleton block, mark this method as a singleton method
-                if current_class_or_module.instance_variable_get(:@in_singleton_block)
-                  current_method.instance_variable_set(:@is_singleton_method, true)
-                end
-              end
-            end
+            current_class_or_module, current_method, current_visibility = process_heading(
+              heading_info, current_class_or_module, current_method, current_visibility, metadata
+            )
           else
             # Regular content line
             content_buffer << line
@@ -111,6 +78,47 @@ module LPFM
 
         # Process any remaining content
         process_content_buffer(content_buffer, current_method, current_class_or_module)
+      end
+
+      def process_heading(heading_info, current_class_or_module, current_method, current_visibility, metadata)
+        case heading_info[:level]
+        when 1
+          # H1 defines class or module
+          current_class_or_module = create_class_or_module(heading_info[:title], metadata)
+          current_visibility = :public
+          current_method = nil
+        when 2
+          # H2 defines method, visibility modifier, or singleton class block
+          if is_visibility_modifier?(heading_info[:title])
+            current_visibility = heading_info[:title].strip.downcase.to_sym
+            current_method = nil
+            # Exit singleton block when we hit a visibility modifier
+            current_class_or_module.instance_variable_set(:@in_singleton_block, false)
+          elsif heading_info[:title].strip == 'class << self'
+            # Handle singleton class block - methods following will be class methods
+            current_visibility = :public
+            current_method = nil
+            # Mark that we're in a singleton class context
+            current_class_or_module.instance_variable_set(:@in_singleton_block, true)
+          else
+            # Exit singleton block when we encounter a regular H2 method
+            current_class_or_module.instance_variable_set(:@in_singleton_block, false)
+            # H2 methods default to public visibility
+            current_visibility = :public
+            current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
+          end
+        when 3
+          # H3 defines method within current visibility scope or singleton block
+          if current_class_or_module
+            current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
+            # If we're in a singleton block, mark this method as a singleton method
+            if current_class_or_module.instance_variable_get(:@in_singleton_block)
+              current_method.instance_variable_set(:@is_singleton_method, true)
+            end
+          end
+        end
+
+        [current_class_or_module, current_method, current_visibility]
       end
 
       def create_class_or_module(title, metadata = nil)
