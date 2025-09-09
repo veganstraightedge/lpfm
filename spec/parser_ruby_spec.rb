@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require 'tempfile'
+require "spec_helper"
+require "tempfile"
 
 RSpec.describe LPFM::Parser::Ruby do
-  describe 'roundtrip conversion using doc/examples' do
+  describe "roundtrip conversion using doc/examples" do
     # Get all Ruby example files from doc/examples/
-    example_files = Dir.glob('doc/examples/**/*.rb').map do |file|
+    example_files = Dir.glob("doc/examples/**/*.rb").map do |file|
       {
         path: file,
         name: File.basename(File.dirname(file)),
@@ -19,7 +19,7 @@ RSpec.describe LPFM::Parser::Ruby do
         let(:original_ruby_path) { example[:ruby_file] }
         let(:original_ruby_content) { File.read(original_ruby_path) }
 
-        it 'maintains exact Ruby code through full roundtrip conversion' do
+        it "maintains exact Ruby code through full roundtrip conversion" do
           # Step 1: Load original .rb file
           expect(File.exist?(original_ruby_path)).to be true
           expect(original_ruby_content.strip).not_to be_empty
@@ -35,7 +35,7 @@ RSpec.describe LPFM::Parser::Ruby do
           generated_ruby = lpfm_from_ruby.to_ruby
 
           # Step 4: Write generated Ruby to temporary file
-          Tempfile.create(['test', '.rb']) do |ruby_tempfile|
+          Tempfile.create(["test", ".rb"]) do |ruby_tempfile|
             ruby_tempfile.write(generated_ruby)
             ruby_tempfile.rewind
 
@@ -155,7 +155,7 @@ RSpec.describe LPFM::Parser::Ruby do
           end
         end
 
-        it 'parses Ruby file structure correctly' do
+        it "parses Ruby file structure correctly" do
           lpfm = LPFM::LPFM.new(original_ruby_content, type: :ruby)
 
           # Basic structural validation
@@ -197,32 +197,32 @@ RSpec.describe LPFM::Parser::Ruby do
     end
   end
 
-  describe 'specific parsing features' do
-    context 'when parsing mixed visibility example' do
-      let(:mixed_visibility_file) { 'doc/examples/mixed_visibility/service.rb' }
+  describe "specific parsing features" do
+    context "when parsing mixed visibility example" do
+      let(:mixed_visibility_file) { "doc/examples/mixed_visibility/service.rb" }
       let(:ruby_content) { File.read(mixed_visibility_file) }
 
-      it 'correctly parses method visibility order' do
+      it "correctly parses method visibility order" do
         lpfm = LPFM::LPFM.new(ruby_content, type: :ruby)
-        service_class = lpfm.classes['Service']
+        service_class = lpfm.classes["Service"]
 
         methods_with_visibility = service_class.methods.map { |m| [m.name, m.visibility] }
 
         expect(methods_with_visibility).to include(
-          ['initialize', :public],
-          ['public_method', :public],
-          ['private_helper', :private],
-          ['protected_method', :protected],
-          ['another_public_method', :public],
-          ['another_private_method', :private]
+          ["initialize", :public],
+          ["public_method", :public],
+          ["private_helper", :private],
+          ["protected_method", :protected],
+          ["another_public_method", :public],
+          ["another_private_method", :private]
         )
       end
     end
 
-    context 'when parsing class with attributes' do
-      let(:attr_file) { Dir.glob('doc/examples/**/class_with_attr*/*.rb').first }
+    context "when parsing class with attributes" do
+      let(:attr_file) { Dir.glob("doc/examples/**/class_with_attr*/*.rb").first }
 
-      it 'correctly parses attr_* declarations' do
+      it "correctly parses attr_* declarations" do
         skip "No attr examples found" unless attr_file
 
         ruby_content = File.read(attr_file)
@@ -237,10 +237,10 @@ RSpec.describe LPFM::Parser::Ruby do
       end
     end
 
-    context 'when parsing class with constants' do
-      let(:constant_files) { Dir.glob('doc/examples/**/class_with_constants*/*.rb') }
+    context "when parsing class with constants" do
+      let(:constant_files) { Dir.glob("doc/examples/**/class_with_constants*/*.rb") }
 
-      it 'correctly parses constant definitions' do
+      it "correctly parses constant definitions" do
         skip "No constant examples found" if constant_files.empty?
 
         constant_files.each do |file|
@@ -276,8 +276,8 @@ RSpec.describe LPFM::Parser::Ruby do
     lines.join("\n")
   end
 
-  describe 'error handling' do
-    it 'raises error for invalid Ruby syntax' do
+  describe "error handling" do
+    it "raises error for invalid Ruby syntax" do
       invalid_ruby = "class Foo def bar"
 
       expect do
@@ -285,13 +285,13 @@ RSpec.describe LPFM::Parser::Ruby do
       end.to raise_error(LPFM::Error, /Invalid Ruby syntax|Failed to parse Ruby code/)
     end
 
-    it 'raises error for empty content' do
+    it "raises error for empty content" do
       expect do
         LPFM::LPFM.new("", type: :ruby)
       end.to raise_error(LPFM::Error, /cannot be empty/)
     end
 
-    it 'creates empty LPFM object for nil content' do
+    it "creates empty LPFM object for nil content" do
       lpfm = LPFM::LPFM.new(nil, type: :ruby)
       expect(lpfm.classes).to be_empty
       expect(lpfm.modules).to be_empty

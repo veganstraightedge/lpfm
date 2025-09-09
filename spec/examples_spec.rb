@@ -15,7 +15,7 @@ RSpec.describe "LPFM Examples" do
     expect(lpfm_files).not_to be_empty, "No .lpfm file found in #{example_dir}"
 
     lpfm_file = lpfm_files.first
-    ruby_file = lpfm_file.gsub('.lpfm', '.rb')
+    ruby_file = lpfm_file.gsub(".lpfm", ".rb")
 
     # Skip if no corresponding Ruby file exists
     return unless File.exist?(ruby_file)
@@ -52,40 +52,40 @@ RSpec.describe "LPFM Examples" do
       content = File.read("doc/examples/simple_class/foo.lpfm")
       lpfm = LPFM::LPFM.new(content)
 
-      expect(lpfm.classes).to have_key('Foo')
-      foo_class = lpfm.classes['Foo']
+      expect(lpfm.classes).to have_key("Foo")
+      foo_class = lpfm.classes["Foo"]
       expect(foo_class.methods.length).to eq(2)
-      expect(foo_class.methods.map(&:name)).to contain_exactly('bar', 'baz')
+      expect(foo_class.methods.map(&:name)).to contain_exactly("bar", "baz")
     end
 
     it "parses YAML frontmatter correctly" do
       content = File.read("doc/examples/class_with_constants_yaml/config.lpfm")
       lpfm = LPFM::LPFM.new(content)
 
-      config_class = lpfm.classes['Config']
-      expect(config_class.constants).to include('VERSION' => '1.2.0')
-      expect(config_class.constants).to include('MAX_RETRIES' => 3)
+      config_class = lpfm.classes["Config"]
+      expect(config_class.constants).to include("VERSION" => "1.2.0")
+      expect(config_class.constants).to include("MAX_RETRIES" => 3)
     end
 
     it "handles private methods correctly" do
       content = File.read("doc/examples/class_with_private_method/foo.lpfm")
       lpfm = LPFM::LPFM.new(content)
 
-      foo_class = lpfm.classes['Foo']
+      foo_class = lpfm.classes["Foo"]
       public_methods = foo_class.methods.select(&:public?)
       private_methods = foo_class.methods.select(&:private?)
 
       expect(public_methods.length).to eq(1)
       expect(private_methods.length).to eq(1)
-      expect(public_methods.first.name).to eq('bar')
-      expect(private_methods.first.name).to eq('baz')
+      expect(public_methods.first.name).to eq("bar")
+      expect(private_methods.first.name).to eq("baz")
     end
 
     it "handles attr_* methods correctly" do
       content = File.read("doc/examples/class_with_attr_accessors_yaml/user.lpfm")
       lpfm = LPFM::LPFM.new(content)
 
-      user_class = lpfm.classes['User']
+      user_class = lpfm.classes["User"]
       expect(user_class.attr_readers).to contain_exactly(:name, :email)
       expect(user_class.attr_writers).to contain_exactly(:password)
       expect(user_class.attr_accessors).to contain_exactly(:age, :active)
@@ -95,10 +95,10 @@ RSpec.describe "LPFM Examples" do
       content = File.read("doc/examples/module_with_yaml/user_helpers.lpfm")
       lpfm = LPFM::LPFM.new(content)
 
-      expect(lpfm.modules).to have_key('UserHelpers')
-      module_def = lpfm.modules['UserHelpers']
+      expect(lpfm.modules).to have_key("UserHelpers")
+      module_def = lpfm.modules["UserHelpers"]
       expect(module_def.methods.length).to eq(1)
-      expect(module_def.methods.first.name).to eq('format_name')
+      expect(module_def.methods.first.name).to eq("format_name")
     end
 
     it "handles empty classes correctly" do

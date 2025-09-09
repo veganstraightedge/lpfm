@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'prism'
-require_relative 'foundation'
+require "prism"
+require_relative "foundation"
 
 module LPFM
   module Parser
@@ -177,7 +177,7 @@ module LPFM
           case node.receiver.type
           when :self_node
             is_class_method = true
-            method_name = method_name.sub(/^self\./, '')
+            method_name = method_name.sub(/^self\./, "")
           when :call_node
             # Handle def object.method syntax (like def admin.revoke_access)
             receiver_name = node.receiver.name.to_s
@@ -209,17 +209,17 @@ module LPFM
         method_name = node.name.to_s
 
         case method_name
-        when 'require'
+        when "require"
           handle_require_call(node)
-        when 'include'
+        when "include"
           handle_include_call(node, parent_class_or_module)
-        when 'extend'
+        when "extend"
           handle_extend_call(node, parent_class_or_module)
-        when 'attr_reader', 'attr_writer', 'attr_accessor'
+        when "attr_reader", "attr_writer", "attr_accessor"
           handle_attr_call(node, parent_class_or_module, method_name)
-        when 'alias_method'
+        when "alias_method"
           handle_alias_method_call(node, parent_class_or_module)
-        when 'private', 'protected', 'public'
+        when "private", "protected", "public"
           # These are handled in the method processing loop
           nil
         end
@@ -263,9 +263,9 @@ module LPFM
 
         # Use inline attrs to preserve order and spacing
         attr_symbol = case attr_type
-                      when 'attr_reader' then :reader
-                      when 'attr_writer' then :writer
-                      when 'attr_accessor' then :accessor
+                      when "attr_reader" then :reader
+                      when "attr_writer" then :writer
+                      when "attr_accessor" then :accessor
                       end
 
         parent_class_or_module.add_inline_attr(attr_symbol, symbols)
@@ -314,9 +314,9 @@ module LPFM
         when Prism::ConstantPathNode
           parts = []
           collect_constant_path_parts(node, parts)
-          parts.join('::')
+          parts.join("::")
         when Prism::SelfNode
-          'self'
+          "self"
         else
           node.to_s if node.respond_to?(:to_s)
         end

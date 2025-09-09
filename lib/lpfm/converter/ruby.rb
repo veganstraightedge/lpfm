@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'foundation'
+require_relative "foundation"
 
 module LPFM
   module Converter
@@ -39,7 +39,7 @@ module LPFM
         @lpfm_object.classes.each_value do |class_def|
           namespace = class_def.namespace
           if namespace && !namespace.empty?
-            namespace_key = namespace.join('::')
+            namespace_key = namespace.join("::")
             namespace_groups[namespace_key] ||= { modules: [], classes: [] }
             namespace_groups[namespace_key][:classes] << class_def
           else
@@ -53,7 +53,7 @@ module LPFM
 
           namespace = module_def.namespace
           if namespace && !namespace.empty?
-            namespace_key = namespace.join('::')
+            namespace_key = namespace.join("::")
             namespace_groups[namespace_key] ||= { modules: [], classes: [] }
             namespace_groups[namespace_key][:modules] << module_def
           else
@@ -63,7 +63,7 @@ module LPFM
 
         # Generate namespaced output
         namespace_groups.each do |namespace_key, items|
-          namespace_parts = namespace_key.split('::')
+          namespace_parts = namespace_key.split("::")
           namespace_lines = []
 
           # Open namespace modules with proper nesting
@@ -391,7 +391,7 @@ module LPFM
 
         # Method definition line
         # Don't add self. prefix for object singleton methods that already contain dots
-        method_prefix = if method.class_method? && !method.name.include?('.')
+        method_prefix = if method.class_method? && !method.name.include?(".")
                           "self."
                         else
                           ""

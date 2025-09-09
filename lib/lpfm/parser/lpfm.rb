@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'foundation'
+require_relative "foundation"
 
 module LPFM
   module Parser
@@ -25,7 +25,7 @@ module LPFM
 
       def process_yaml_metadata(metadata)
         # Handle requires
-        Array(metadata['require']).each { |req| @lpfm_object.add_require(req) } if metadata['require']
+        Array(metadata["require"]).each { |req| @lpfm_object.add_require(req) } if metadata["require"]
 
         # Store metadata for later use
         @lpfm_object.instance_variable_set(:@metadata, metadata)
@@ -90,7 +90,7 @@ module LPFM
             current_method = nil
             # Exit singleton block when we hit a visibility modifier
             current_class_or_module.exit_singleton_block!
-          elsif heading_info[:title].strip == 'class << self'
+          elsif heading_info[:title].strip == "class << self"
             # Handle singleton class block - methods following will be class methods
             current_visibility = :public
             current_method = nil
@@ -120,18 +120,18 @@ module LPFM
         metadata ||= @lpfm_object.metadata || {}
 
         # Check if title starts with "module" keyword
-        if title.start_with?('module ')
-          module_name = title.sub(/^module\s+/, '')
+        if title.start_with?("module ")
+          module_name = title.sub(/^module\s+/, "")
           @lpfm_object.add_module(module_name)
           class_or_module = @lpfm_object.get_module(module_name)
-        elsif title.start_with?('class ')
-          class_name = title.sub(/^class\s+/, '')
+        elsif title.start_with?("class ")
+          class_name = title.sub(/^class\s+/, "")
           @lpfm_object.add_class(class_name)
           class_or_module = @lpfm_object.get_class(class_name)
-        elsif title.include?('::')
+        elsif title.include?("::")
           # Handle namespaced classes/modules
           class_or_module = create_namespaced_class_or_module(title, metadata)
-        elsif metadata['type'] == 'module'
+        elsif metadata["type"] == "module"
           @lpfm_object.add_module(title)
           class_or_module = @lpfm_object.get_module(title)
         else
@@ -139,7 +139,7 @@ module LPFM
           class_or_module = @lpfm_object.get_class(title)
 
           # Handle inheritance
-          class_or_module.inherits_from = metadata['inherits_from'] if metadata['inherits_from']
+          class_or_module.inherits_from = metadata["inherits_from"] if metadata["inherits_from"]
         end
 
         # Process metadata attributes if we have a single class/module
@@ -150,7 +150,7 @@ module LPFM
 
       def create_namespaced_class_or_module(title, metadata)
         # Split namespace from class name: "MyApp::UserService" -> ["MyApp", "UserService"]
-        parts = title.split('::')
+        parts = title.split("::")
         class_name = parts.pop
         namespace_parts = parts
 
@@ -165,7 +165,7 @@ module LPFM
         end
 
         # Create the actual class
-        if metadata['type'] == 'module'
+        if metadata["type"] == "module"
           @lpfm_object.add_module(class_name)
           class_or_module = @lpfm_object.get_module(class_name)
         else
@@ -177,7 +177,7 @@ module LPFM
         class_or_module.instance_variable_set(:@namespace, namespace_parts)
 
         # Handle inheritance
-        class_or_module.inherits_from = metadata['inherits_from'] if metadata['inherits_from']
+        class_or_module.inherits_from = metadata["inherits_from"] if metadata["inherits_from"]
 
         class_or_module
       end
@@ -192,17 +192,17 @@ module LPFM
         attr_accessors = []
 
         # Process nested attr syntax first (name comes from here)
-        if metadata['attr']
-          attr_config = metadata['attr']
-          attr_readers.concat(Array(attr_config['reader'])) if attr_config['reader']
-          attr_writers.concat(Array(attr_config['writer'])) if attr_config['writer']
-          attr_accessors.concat(Array(attr_config['accessor'])) if attr_config['accessor']
+        if metadata["attr"]
+          attr_config = metadata["attr"]
+          attr_readers.concat(Array(attr_config["reader"])) if attr_config["reader"]
+          attr_writers.concat(Array(attr_config["writer"])) if attr_config["writer"]
+          attr_accessors.concat(Array(attr_config["accessor"])) if attr_config["accessor"]
         end
 
         # Then add top-level attrs (id comes from here)
-        attr_readers.concat(Array(metadata['attr_reader'])) if metadata['attr_reader']
-        attr_writers.concat(Array(metadata['attr_writer'])) if metadata['attr_writer']
-        attr_accessors.concat(Array(metadata['attr_accessor'])) if metadata['attr_accessor']
+        attr_readers.concat(Array(metadata["attr_reader"])) if metadata["attr_reader"]
+        attr_writers.concat(Array(metadata["attr_writer"])) if metadata["attr_writer"]
+        attr_accessors.concat(Array(metadata["attr_accessor"])) if metadata["attr_accessor"]
 
         # Add them to the class/module
         class_or_module.add_attr_reader(*attr_readers) unless attr_readers.empty?
@@ -210,22 +210,22 @@ module LPFM
         class_or_module.add_attr_accessor(*attr_accessors) unless attr_accessors.empty?
 
         # Handle includes and extends
-        Array(metadata['include']).each { |mod| class_or_module.add_include(mod) } if metadata['include']
+        Array(metadata["include"]).each { |mod| class_or_module.add_include(mod) } if metadata["include"]
 
-        Array(metadata['extend']).each { |mod| class_or_module.add_extend(mod) } if metadata['extend']
+        Array(metadata["extend"]).each { |mod| class_or_module.add_extend(mod) } if metadata["extend"]
 
         # Handle constants
-        metadata['constants'].each { |name, value| class_or_module.add_constant(name, value) } if metadata['constants']
+        metadata["constants"].each { |name, value| class_or_module.add_constant(name, value) } if metadata["constants"]
 
         # Handle class variables
-        metadata['class_variables'].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) } if metadata['class_variables']
+        metadata["class_variables"].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) } if metadata["class_variables"]
 
         # Handle aliases
-        metadata['aliases'].each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) } if metadata['aliases']
+        metadata["aliases"].each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) } if metadata["aliases"]
 
         # Handle alias_method
-        if metadata['alias_method']
-          metadata['alias_method'].each { |alias_name, original_method| class_or_module.add_alias_method(alias_name, original_method) }
+        if metadata["alias_method"]
+          metadata["alias_method"].each { |alias_name, original_method| class_or_module.add_alias_method(alias_name, original_method) }
         end
       end
 
@@ -286,14 +286,14 @@ module LPFM
 
           # Handle constants (CONSTANT_NAME = value)
           when /^[A-Z][A-Z0-9_]*\s*=/
-            parts = line.split('=', 2)
+            parts = line.split("=", 2)
             constant_name = parts[0].strip
             constant_value = normalize_constant_value_from_text(parts[1].strip) if parts[1]
             class_or_module.add_constant(constant_name, constant_value)
 
           # Handle class variables (@@var = value)
           when /^@@\w+\s*=/
-            parts = line.split('=', 2)
+            parts = line.split("=", 2)
             var_name = parts[0].strip
             var_value = normalize_constant_value_from_text(parts[1].strip) if parts[1]
             class_or_module.add_class_variable(var_name, var_value)
@@ -303,9 +303,9 @@ module LPFM
 
       def extract_attr_symbols(line)
         # Extract symbols from attr_* lines like "attr_reader :name, :email"
-        symbols_part = line.sub(/^attr_\w+\s+/, '')
-        symbols_part.split(',').map do |symbol|
-          symbol.strip.sub(/^:/, '').to_sym
+        symbols_part = line.sub(/^attr_\w+\s+/, "")
+        symbols_part.split(",").map do |symbol|
+          symbol.strip.sub(/^:/, "").to_sym
         end
       end
 
@@ -319,11 +319,11 @@ module LPFM
         when /^\d+\.\d+$/
           value_text.to_f
         # Handle boolean values
-        when 'true'
+        when "true"
           true
-        when 'false'
+        when "false"
           false
-        when 'nil'
+        when "nil"
           nil
         else
           # Return as string, preserving quotes if present
@@ -334,9 +334,9 @@ module LPFM
       def infer_class_name_from_filename(filename)
         return nil unless filename
 
-        base_name = File.basename(filename, '.*')
+        base_name = File.basename(filename, ".*")
         # Convert snake_case to CamelCase
-        base_name.split('_').map(&:capitalize).join
+        base_name.split("_").map(&:capitalize).join
       end
     end
   end

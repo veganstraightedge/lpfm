@@ -15,7 +15,7 @@ RSpec.describe "LPFM Markdown Converter Examples" do
     expect(lpfm_files).not_to be_empty, "No .lpfm file found in #{example_dir}"
 
     lpfm_file = lpfm_files.first
-    markdown_file = lpfm_file.gsub('.lpfm', '.markdown')
+    markdown_file = lpfm_file.gsub(".lpfm", ".markdown")
 
     # Skip if no corresponding Markdown file exists
     return unless File.exist?(markdown_file)

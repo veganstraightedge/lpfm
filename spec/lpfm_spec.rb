@@ -15,10 +15,10 @@ RSpec.describe LPFM do
       content = "# Foo\n\n## bar\nputs 'hello'"
       lpfm = LPFM::LPFM.new(content)
 
-      expect(lpfm.classes).to have_key('Foo')
-      foo_class = lpfm.classes['Foo']
+      expect(lpfm.classes).to have_key("Foo")
+      foo_class = lpfm.classes["Foo"]
       expect(foo_class.methods.length).to eq(1)
-      expect(foo_class.methods.first.name).to eq('bar')
+      expect(foo_class.methods.first.name).to eq("bar")
       expect(foo_class.methods.first.body).to eq("puts 'hello'")
     end
 

@@ -89,7 +89,7 @@ module LPFM
       # Basic LPFM validation - should have at least one heading OR be suitable for filename inference
       has_h1_heading = @content.match?(/^#[^#]/)
       has_other_headings = @content.match?(/^##/)
-      has_yaml_frontmatter = @content.start_with?('---')
+      has_yaml_frontmatter = @content.start_with?("---")
       has_content = !@content.strip.empty?
 
       # Allow filename inference if we have methods (H2) or YAML frontmatter but no H1, AND we have a filename
