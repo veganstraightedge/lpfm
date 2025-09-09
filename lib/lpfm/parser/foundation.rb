@@ -2,8 +2,8 @@
 
 module LPFM
   module Parser
-    # Base class for all LPFM parsers
-    class Base
+    # Foundation class for all LPFM parsers
+    class Foundation
       attr_reader :content, :lpfm_object
 
       def initialize(content, lpfm_object)

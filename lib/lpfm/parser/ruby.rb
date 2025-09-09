@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'prism'
-require_relative 'base'
+require_relative 'foundation'
 
 module LPFM
   module Parser
     # Parser for Ruby content using Prism AST
-    class Ruby < Base
+    class Ruby < Foundation
       def initialize(content, lpfm_object, filename = nil)
         super(content, lpfm_object)
         @filename = filename

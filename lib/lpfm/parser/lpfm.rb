@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'base'
+require_relative 'foundation'
 
 module LPFM
   module Parser
     # Parser for LPFM (Literate Programming Flavored Markdown) content
-    class LPFM < Base
+    class LPFM < Foundation
       def initialize(content, lpfm_object, filename = nil)
         super(content, lpfm_object)
         @filename = filename
