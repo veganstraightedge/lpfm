@@ -72,9 +72,7 @@ module LPFM
 
         # Handle inheritance
         superclass = nil
-        if node.superclass
-          superclass = extract_constant_name(node.superclass)
-        end
+        superclass = extract_constant_name(node.superclass) if node.superclass
 
         # Create class in LPFM at top level but with namespace information
         @lpfm_object.add_class(class_name)
@@ -82,9 +80,7 @@ module LPFM
         class_def.inherits_from = superclass if superclass
 
         # Set namespace if we're inside modules
-        if !namespace_path.empty?
-          class_def.instance_variable_set(:@namespace, namespace_path.dup)
-        end
+        class_def.instance_variable_set(:@namespace, namespace_path.dup) if !namespace_path.empty?
 
         # Process class body
         if node.body
@@ -117,9 +113,7 @@ module LPFM
         module_def = @lpfm_object.get_module(module_name)
 
         # Set namespace if we're inside other modules
-        if !namespace_path.empty?
-          module_def.instance_variable_set(:@namespace, namespace_path.dup)
-        end
+        module_def.instance_variable_set(:@namespace, namespace_path.dup) if !namespace_path.empty?
 
         # Track if this module has its own content (not just nested modules/classes)
         has_own_content = false
@@ -151,9 +145,7 @@ module LPFM
         end
 
         # If this module only contains nested modules/classes, mark it as namespace-only
-        if !has_own_content
-          module_def.instance_variable_set(:@is_namespace, true)
-        end
+        module_def.instance_variable_set(:@is_namespace, true) if !has_own_content
       end
 
       def process_singleton_class_node(node, parent_class_or_module)
@@ -166,9 +158,7 @@ module LPFM
             when Prism::DefNode
               # Mark method as singleton method
               method = process_method_node(statement, parent_class_or_module)
-              if method
-                method.instance_variable_set(:@is_singleton_method, true)
-              end
+              method.instance_variable_set(:@is_singleton_method, true) if method
             else
               process_statement(statement, parent_class_or_module)
             end
@@ -266,9 +256,7 @@ module LPFM
 
         symbols = []
         node.arguments.arguments.each do |arg|
-          if arg.type == :symbol_node
-            symbols << arg.unescaped.to_sym
-          end
+          symbols << arg.unescaped.to_sym if arg.type == :symbol_node
         end
 
         return if symbols.empty?
@@ -292,9 +280,7 @@ module LPFM
         alias_name = extract_symbol_value(args[0])
         original_name = extract_symbol_value(args[1])
 
-        if alias_name && original_name
-          parent_class_or_module.add_alias_method(alias_name, original_name)
-        end
+        parent_class_or_module.add_alias_method(alias_name, original_name) if alias_name && original_name
       end
 
       def process_constant_assignment(node, parent_class_or_module)
@@ -403,9 +389,7 @@ module LPFM
         end
 
         # Block parameter (&block)
-        if params_node.block
-          parameters << "&#{params_node.block.name}"
-        end
+        parameters << "&#{params_node.block.name}" if params_node.block
 
         parameters
       end
@@ -534,9 +518,7 @@ module LPFM
         alias_name = extract_symbol_value(node.new_name)
         original_name = extract_symbol_value(node.old_name)
 
-        if alias_name && original_name
-          parent_class_or_module.add_alias(alias_name, original_name)
-        end
+        parent_class_or_module.add_alias(alias_name, original_name) if alias_name && original_name
       end
     end
   end

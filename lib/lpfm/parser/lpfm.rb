@@ -25,9 +25,7 @@ module LPFM
 
       def process_yaml_metadata(metadata)
         # Handle requires
-        if metadata['require']
-          Array(metadata['require']).each { |req| @lpfm_object.add_require(req) }
-        end
+        Array(metadata['require']).each { |req| @lpfm_object.add_require(req) } if metadata['require']
 
         # Store metadata for later use
         @lpfm_object.instance_variable_set(:@metadata, metadata)
@@ -43,9 +41,7 @@ module LPFM
         # If no H1 heading and we have content, infer from filename
         if !has_h1_heading && @filename && lines.any? { |line| !is_empty_line?(line) }
           inferred_name = infer_class_name_from_filename(@filename)
-          if inferred_name
-            current_class_or_module = create_class_or_module(inferred_name, metadata)
-          end
+          current_class_or_module = create_class_or_module(inferred_name, metadata) if inferred_name
         end
 
         i = 0
@@ -112,9 +108,7 @@ module LPFM
           if current_class_or_module
             current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
             # If we're in a singleton block, mark this method as a singleton method
-            if current_class_or_module.in_singleton_block?
-              current_method.mark_as_singleton!
-            end
+            current_method.mark_as_singleton! if current_class_or_module.in_singleton_block?
           end
         end
 
@@ -145,15 +139,11 @@ module LPFM
           class_or_module = @lpfm_object.get_class(title)
 
           # Handle inheritance
-          if metadata['inherits_from']
-            class_or_module.inherits_from = metadata['inherits_from']
-          end
+          class_or_module.inherits_from = metadata['inherits_from'] if metadata['inherits_from']
         end
 
         # Process metadata attributes if we have a single class/module
-        if class_or_module
-          process_metadata_for_class_or_module(class_or_module, metadata)
-        end
+        process_metadata_for_class_or_module(class_or_module, metadata) if class_or_module
 
         class_or_module
       end
@@ -187,9 +177,7 @@ module LPFM
         class_or_module.instance_variable_set(:@namespace, namespace_parts)
 
         # Handle inheritance
-        if metadata['inherits_from']
-          class_or_module.inherits_from = metadata['inherits_from']
-        end
+        class_or_module.inherits_from = metadata['inherits_from'] if metadata['inherits_from']
 
         class_or_module
       end
@@ -222,28 +210,18 @@ module LPFM
         class_or_module.add_attr_accessor(*attr_accessors) unless attr_accessors.empty?
 
         # Handle includes and extends
-        if metadata['include']
-          Array(metadata['include']).each { |mod| class_or_module.add_include(mod) }
-        end
+        Array(metadata['include']).each { |mod| class_or_module.add_include(mod) } if metadata['include']
 
-        if metadata['extend']
-          Array(metadata['extend']).each { |mod| class_or_module.add_extend(mod) }
-        end
+        Array(metadata['extend']).each { |mod| class_or_module.add_extend(mod) } if metadata['extend']
 
         # Handle constants
-        if metadata['constants']
-          metadata['constants'].each { |name, value| class_or_module.add_constant(name, value) }
-        end
+        metadata['constants'].each { |name, value| class_or_module.add_constant(name, value) } if metadata['constants']
 
         # Handle class variables
-        if metadata['class_variables']
-          metadata['class_variables'].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) }
-        end
+        metadata['class_variables'].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) } if metadata['class_variables']
 
         # Handle aliases
-        if metadata['aliases']
-          metadata['aliases'].each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) }
-        end
+        metadata['aliases'].each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) } if metadata['aliases']
 
         # Handle alias_method
         if metadata['alias_method']
