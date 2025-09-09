@@ -44,7 +44,7 @@ config_files.each do |file|
   else
     raise "Unsupported format: #{format}"
   end
-  
+
   combined_config.merge!(file_config)
 end
 

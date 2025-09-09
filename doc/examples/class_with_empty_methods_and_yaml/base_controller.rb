@@ -4,6 +4,7 @@ require 'json'
 class BaseController
   include Loggable
   include Validatable
+
   VERSION = "2.1.0"
   DEFAULT_TIMEOUT = 30
 

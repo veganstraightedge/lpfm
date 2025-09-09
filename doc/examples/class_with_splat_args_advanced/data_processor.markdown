@@ -5,6 +5,7 @@ require 'logger'
 module Utils
   class DataProcessor
     include Enumerable
+
     VERSION = "2.0.0"
 
     attr_reader :logger

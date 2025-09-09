@@ -52,7 +52,7 @@ class ConfigManager
           raise "Unsupported format: #{format}"
         end
 
-      combined_config.merge!(file_config)
+        combined_config.merge!(file_config)
       end
 
       configure(**combined_config.merge(import_options))
