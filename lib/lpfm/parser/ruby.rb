@@ -478,9 +478,7 @@ module LPFM
 
       def extract_symbol_value(node)
         case node
-        when Prism::SymbolNode
-          node.unescaped
-        when Prism::StringNode
+        when Prism::SymbolNode, Prism::StringNode
           node.unescaped
         end
       end
