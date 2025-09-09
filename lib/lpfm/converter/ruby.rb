@@ -125,7 +125,22 @@ module LPFM
         class_line += " < #{class_def.inherits_from}" if class_def.inherits_from
         output << class_line
 
-        # Class body
+        # Build class body
+        body_parts = build_class_body(class_def, include_prose)
+
+        # Format class body with proper indentation
+        unless body_parts.empty?
+          formatted_body = body_parts.map { |part|
+            part.empty? ? "" : format_indentation(part)
+          }.join("\n")
+          output << formatted_body
+        end
+
+        output << "end"
+        output.join("\n")
+      end
+
+      def build_class_body(class_def, include_prose)
         body_parts = []
 
         # Add includes first (Ruby convention)
@@ -168,7 +183,6 @@ module LPFM
         inline_attrs = format_inline_attr_methods(class_def)
 
         body_parts.concat(yaml_attrs)
-
         body_parts.concat(inline_attrs)
 
         # Add spacing after any attr methods if we have methods (but not aliases, since they handle their own spacing)
@@ -178,6 +192,16 @@ module LPFM
           body_parts << ""
         end
 
+        # Add methods
+        add_methods_to_body(body_parts, class_def, include_prose)
+
+        # Add aliases at the end
+        add_aliases_to_body(body_parts, class_def, yaml_attrs, inline_attrs)
+
+        body_parts
+      end
+
+      def add_methods_to_body(body_parts, class_def, include_prose)
         # Process methods in their original parse order, handling singleton blocks and visibility changes
         current_visibility = :public
         method_index = 0
@@ -231,8 +255,9 @@ module LPFM
           end
           body_parts << "end"
         end
+      end
 
-        # Add aliases at the end
+      def add_aliases_to_body(body_parts, class_def, yaml_attrs, inline_attrs)
         if class_def.has_aliases?
           # Only add spacing if there are attrs or methods before aliases
           has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
@@ -246,17 +271,6 @@ module LPFM
             body_parts << "alias_method :#{alias_name}, :#{original_method}"
           end
         end
-
-        # Format class body with proper indentation
-        unless body_parts.empty?
-          formatted_body = body_parts.map { |part|
-            part.empty? ? "" : format_indentation(part)
-          }.join("\n")
-          output << formatted_body
-        end
-
-        output << "end"
-        output.join("\n")
       end
 
       def convert_module(module_def, include_prose = false)
