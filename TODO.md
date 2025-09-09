@@ -59,9 +59,9 @@ This document outlines the development roadmap for the Literate Programming Flav
 ## Phase 2: Extended Parsers and Converters
 
 ### 2.0 Additional Converters
-- [ ] Implement `LPFM::Converter::Markdown` class
-- [ ] Add `#to_markdown` and `#to_md` methods
-- [ ] Generate Markdown with fenced Ruby code blocks
+- [x] Implement `LPFM::Converter::Markdown` class
+- [x] Add `#to_markdown` and `#to_md` methods
+- [x] Generate Markdown with fenced Ruby code blocks
 
 ### 2.1 Ruby Parser (Reverse Engineering)
 - [ ] Integrate Prism gem for Ruby AST parsing

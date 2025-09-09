@@ -6,6 +6,7 @@ require_relative "lpfm/data/module_definition"
 require_relative "lpfm/data/method_definition"
 require_relative "lpfm/parser/lpfm"
 require_relative "lpfm/converter/ruby"
+require_relative "lpfm/converter/markdown"
 
 module LPFM
   class Error < StandardError; end
@@ -164,5 +165,12 @@ module LPFM
       converter = Converter::Ruby.new(self)
       converter.convert(include_prose_as_comments: include_prose_as_comments)
     end
+
+    # Convert to Markdown with fenced Ruby code blocks
+    def to_markdown(include_prose: true)
+      converter = Converter::Markdown.new(self)
+      converter.convert(include_prose: include_prose)
+    end
+    alias to_md to_markdown
   end
 end
