@@ -6,13 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: Severity.
-Gemspec/RequireMFA:
-  Exclude:
-    - 'lpfm.gemspec'
-
 # Offense count: 25
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle, IndentationWidth.
@@ -211,12 +204,6 @@ Naming/PredicatePrefix:
     - 'lib/lpfm/data/module_definition.rb'
     - 'lib/lpfm/parser/foundation.rb'
     - 'lib/lpfm/parser/ruby.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Performance/StringReplacement:
-  Exclude:
-    - 'lpfm.gemspec'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).

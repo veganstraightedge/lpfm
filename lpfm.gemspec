@@ -3,25 +3,26 @@
 require_relative "lib/lpfm/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "lpfm"
-  spec.version = LPFM::VERSION
-  spec.authors = ["Shane Becker"]
-  spec.email = ["veganstraightedge@gmail.com"]
+  spec.name     = "lpfm"
+  spec.version  = LPFM::VERSION
+  spec.authors  = ["Shane Becker"]
+  spec.email    = ["veganstraightedge@gmail.com"]
+  spec.homepage = "https://github.com/veganstraightedge/lpfm"
+  spec.license  = "MIT"
+  spec.summary  = "Literate Programming Flavored Markdown (LPFM)"
 
-  spec.summary = "Literate Programming Flavored Markdown (LPFM)"
-  spec.description = <<~DESCRIPTION.strip.gsub("\n", " ")
+  spec.description = <<~DESCRIPTION.strip.tr("\n", " ")
     Literate Programming Flavored Markdown (LPFM)
     is a file format, syntax for literate programming in Markdown,
     combining prose and code in the same file.
     Prose for humans and code for machines are both written in Markdown.
   DESCRIPTION
-  spec.homepage = "https://github.com/veganstraightedge/lpfm"
-  spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.4.5"
 
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/veganstraightedge/lpfm"
-  spec.metadata["changelog_uri"] = "https://github.com/veganstraightedge/lpfm/blob/main/CHANGELOG.md"
+  spec.required_ruby_version             = ">= 3.4.5"
+  spec.metadata["homepage_uri"]          = spec.homepage
+  spec.metadata["source_code_uri"]       = "https://github.com/veganstraightedge/lpfm"
+  spec.metadata["changelog_uri"]         = "https://github.com/veganstraightedge/lpfm/blob/main/CHANGELOG.md"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
