@@ -290,30 +290,31 @@ module LPFM
           next if line.empty?
 
           # Handle attr_reader - store as inline
-          if line.match?(/^attr_reader\s+/)
+          case line
+          when /^attr_reader\s+/
             attrs = extract_attr_symbols(line)
             # Store inline attrs with metadata to preserve order
             class_or_module.add_inline_attr(:reader, attrs)
 
           # Handle attr_writer - store as inline
-          elsif line.match?(/^attr_writer\s+/)
+          when /^attr_writer\s+/
             attrs = extract_attr_symbols(line)
             class_or_module.add_inline_attr(:writer, attrs)
 
           # Handle attr_accessor - store as inline
-          elsif line.match?(/^attr_accessor\s+/)
+          when /^attr_accessor\s+/
             attrs = extract_attr_symbols(line)
             class_or_module.add_inline_attr(:accessor, attrs)
 
           # Handle constants (CONSTANT_NAME = value)
-          elsif line.match?(/^[A-Z][A-Z0-9_]*\s*=/)
+          when /^[A-Z][A-Z0-9_]*\s*=/
             parts = line.split('=', 2)
             constant_name = parts[0].strip
             constant_value = normalize_constant_value_from_text(parts[1].strip) if parts[1]
             class_or_module.add_constant(constant_name, constant_value)
 
           # Handle class variables (@@var = value)
-          elsif line.match?(/^@@\w+\s*=/)
+          when /^@@\w+\s*=/
             parts = line.split('=', 2)
             var_name = parts[0].strip
             var_value = normalize_constant_value_from_text(parts[1].strip) if parts[1]
@@ -334,16 +335,17 @@ module LPFM
         value_text = value_text.strip
 
         # Handle numeric values
-        if value_text.match?(/^\d+$/)
+        case value_text
+        when /^\d+$/
           value_text.to_i
-        elsif value_text.match?(/^\d+\.\d+$/)
+        when /^\d+\.\d+$/
           value_text.to_f
         # Handle boolean values
-        elsif value_text == 'true'
+        when 'true'
           true
-        elsif value_text == 'false'
+        when 'false'
           false
-        elsif value_text == 'nil'
+        when 'nil'
           nil
         else
           # Return as string, preserving quotes if present
