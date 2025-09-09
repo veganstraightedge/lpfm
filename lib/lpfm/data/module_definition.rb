@@ -73,7 +73,9 @@ module LPFM
       end
 
       def has_attr_methods?
-        !@attr_readers.empty? || !@attr_writers.empty? || !@attr_accessors.empty?
+        has_traditional_attrs = !@attr_readers.empty? || !@attr_writers.empty? || !@attr_accessors.empty?
+        has_inline_attrs = @inline_attrs && !@inline_attrs.empty?
+        has_traditional_attrs || has_inline_attrs
       end
 
       def has_includes?

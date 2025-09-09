@@ -412,6 +412,7 @@ module LPFM
       def format_attr_methods(class_or_module)
         attr_parts = []
 
+        # Check traditional arrays first
         unless class_or_module.attr_readers.empty?
           readers = format_attribute_list(class_or_module.attr_readers)
           attr_parts << "attr_reader #{readers}"
@@ -427,10 +428,38 @@ module LPFM
           attr_parts << "attr_accessor #{accessors}"
         end
 
+        # If traditional arrays are empty but we have inline_attrs, use those as YAML attrs
+        if attr_parts.empty?
+          inline_attrs = class_or_module.instance_variable_get(:@inline_attrs)
+          if inline_attrs
+            inline_attrs.each do |attr_info|
+              case attr_info[:type]
+              when :reader
+                readers = format_attribute_list(attr_info[:attrs])
+                attr_parts << "attr_reader #{readers}"
+              when :writer
+                writers = format_attribute_list(attr_info[:attrs])
+                attr_parts << "attr_writer #{writers}"
+              when :accessor
+                accessors = format_attribute_list(attr_info[:attrs])
+                attr_parts << "attr_accessor #{accessors}"
+              end
+            end
+          end
+        end
+
         attr_parts
       end
 
       def format_inline_attr_methods(class_or_module)
+        # Only return inline attrs if we also have traditional attrs
+        # (Otherwise inline_attrs are treated as YAML attrs by format_attr_methods)
+        has_traditional_attrs = !class_or_module.attr_readers.empty? ||
+                               !class_or_module.attr_writers.empty? ||
+                               !class_or_module.attr_accessors.empty?
+
+        return [] unless has_traditional_attrs
+
         inline_attrs = class_or_module.instance_variable_get(:@inline_attrs)
         return [] unless inline_attrs
 
