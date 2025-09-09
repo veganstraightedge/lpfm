@@ -116,7 +116,7 @@ _LPFM_ uses Markdown information hierarchy to create valid Ruby code.
 
   - H1 `#` defines a class or module
   - H2 `##` defines a method
-  - H2 `##` also switches to `private`/`protected`/`public` method definitions
+  - H2 `##` also switches visibility modifier with `private`/`protected`/`public`
   - H3 `###` following a H2 of `private`/`protected`/`public` are method definitions in that scope
   - Plain text after a method definition heading is the method body
   - Plain text before an H1 is Ruby code outside of a method definition (CONSTANTS, etc)
