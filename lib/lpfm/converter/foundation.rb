@@ -43,9 +43,8 @@ module LPFM
         case value
         when String
           # Check if it's already quoted
-          if value.start_with?('"') && value.end_with?('"')
-            value
-          elsif value.start_with?("'") && value.end_with?("'")
+          if (value.start_with?('"') && value.end_with?('"')) ||
+             (value.start_with?("'") && value.end_with?("'"))
             value
           else
             "\"#{value}\""
