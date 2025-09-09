@@ -14,6 +14,27 @@ AllCops:
 Layout/LineLength:
   Max: 146
 
+Metrics/AbcSize:
+  Max: 116
+
+Metrics/BlockLength:
+  Max: 27
+
+Metrics/BlockNesting:
+  Max: 7
+
+Metrics/ClassLength:
+  Max: 389
+
+Metrics/CyclomaticComplexity:
+  Max: 44
+
+Metrics/MethodLength:
+  Max: 90
+
+Metrics/PerceivedComplexity:
+  Max: 45
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
