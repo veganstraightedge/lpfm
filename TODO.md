@@ -128,23 +128,21 @@ This document outlines the development roadmap for the Literate Programming Flav
 - 16 comprehensive test cases covering all major Ruby features
 - Error handling for invalid Ruby syntax
 
-### 2.2 Markdown Parser
+### 2.2 Data Export Converters
+- [ ] Implement `#to_lpfm` for roundtrip conversion
+- [ ] Implement `#to_s`    for pretty-printed output
+- [ ] Implement `#to_h`    for Hash representation
+- [ ] Implement `#to_json` using `#to_h`
+- [ ] Implement `#to_yaml` using `#to_h`
+- [ ] Add generic `#to(type)` method
+- [ ] Consider `#to_ast` for AST export
+
+### 2.3 Markdown Parser
 - [ ] Integrate Kramdown gem for Markdown parsing
 - [ ] Implement `LPFM::Parser::Markdown` class
 - [ ] Convert fenced code blocks to LPFM structure
 - [ ] Preserve non-code Markdown as prose
 - [ ] Support `type: :markdown` in constructor
-
-### 2.3 Additional Converters
-- [ ] Implement `#to_lpfm` for roundtrip conversion
-- [ ] Add `#to_s` for pretty-printed output
-
-### 2.4 Data Export Converters
-- [ ] Implement `#to_h` for Hash representation
-- [ ] Implement `#to_json` using `#to_h`
-- [ ] Implement `#to_yaml` using `#to_h`
-- [ ] Consider `#to_ast` for AST export
-- [ ] Add generic `#to(type)` method
 
 ## Phase 3: CLI Tool
 
@@ -156,8 +154,12 @@ This document outlines the development roadmap for the Literate Programming Flav
 - [ ] Handle errors gracefully with user-friendly messages
 
 ### 3.2 CLI Features
-- [ ] Support multiple input formats: `.lpfm`, `.rb`, `.md`
+- [ ] Support multiple input  formats: `.lpfm`, `.rb`, `.md`
 - [ ] Support multiple output formats: `.lpfm`, `.rb`, `.md`
+- [ ] Support output to stdout
+- [ ] Support output to file
+- [ ] Support input from stdout
+- [ ] Support input from file
 - [ ] Add verbose/quiet modes
 - [ ] Add validation mode (syntax checking)
 - [ ] Support batch processing of multiple files
