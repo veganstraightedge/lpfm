@@ -75,11 +75,11 @@ module LPFM
           # Add classes and modules within namespace
           all_items = items[:modules] + items[:classes]
           all_items.each do |item|
-            if item.is_a?(Data::ClassDefinition)
-              content = convert_class(item, include_prose)
-            else
-              content = convert_module(item, include_prose)
-            end
+            content = if item.is_a?(Data::ClassDefinition)
+                        convert_class(item, include_prose)
+                      else
+                        convert_module(item, include_prose)
+                      end
             # Indent content for all namespace levels
             base_indent = "  " * namespace_parts.length
             content.split("\n").each do |line|
@@ -99,11 +99,11 @@ module LPFM
 
         # Add standalone items
         standalone_items.each do |item_info|
-          if item_info[:type] == :class
-            result_parts << convert_class(item_info[:item], include_prose)
-          else
-            result_parts << convert_module(item_info[:item], include_prose)
-          end
+          result_parts << if item_info[:type] == :class
+                            convert_class(item_info[:item], include_prose)
+                          else
+                            convert_module(item_info[:item], include_prose)
+                          end
         end
 
         result_parts

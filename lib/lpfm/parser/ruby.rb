@@ -360,11 +360,11 @@ module LPFM
         # Optional parameters with defaults
         params_node.optionals.each do |param|
           default_value = extract_literal_value(param.value)
-          if default_value.nil?
-            parameters << "#{param.name} = #{param.value.slice}"
-          else
-            parameters << "#{param.name} = #{format_parameter_default(default_value)}"
-          end
+          parameters << if default_value.nil?
+                          "#{param.name} = #{param.value.slice}"
+                        else
+                          "#{param.name} = #{format_parameter_default(default_value)}"
+                        end
         end
 
         # Rest parameter (*args)
@@ -382,11 +382,11 @@ module LPFM
           when Prism::OptionalKeywordParameterNode
             if param.value
               default_value = extract_literal_value(param.value)
-              if default_value.nil?
-                parameters << "#{param.name}: #{param.value.slice}"
-              else
-                parameters << "#{param.name}: #{format_parameter_default(default_value)}"
-              end
+              parameters << if default_value.nil?
+                              "#{param.name}: #{param.value.slice}"
+                            else
+                              "#{param.name}: #{format_parameter_default(default_value)}"
+                            end
             else
               parameters << "#{param.name}:"
             end

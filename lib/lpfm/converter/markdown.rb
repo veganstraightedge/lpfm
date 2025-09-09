@@ -79,11 +79,11 @@ module LPFM
           all_items.each_with_index do |item, item_index|
             output << "" if item_index > 0
 
-            if item.is_a?(Data::ClassDefinition)
-              content = generate_class_content(item)
-            else
-              content = generate_module_content(item)
-            end
+            content = if item.is_a?(Data::ClassDefinition)
+                        generate_class_content(item)
+                      else
+                        generate_module_content(item)
+                      end
 
             # Indent content for all namespace levels
             base_indent = "  " * namespace_parts.length
@@ -104,11 +104,11 @@ module LPFM
         standalone_items.each_with_index do |item_info, index|
           output << "" if index > 0 || (!namespace_groups.empty? && index == 0)
 
-          if item_info[:type] == :class
-            output << generate_class_content(item_info[:item])
-          else
-            output << generate_module_content(item_info[:item])
-          end
+          output << if item_info[:type] == :class
+                      generate_class_content(item_info[:item])
+                    else
+                      generate_module_content(item_info[:item])
+                    end
         end
 
         output.join("\n")
