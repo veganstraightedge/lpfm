@@ -116,8 +116,6 @@ module LPFM
 
       private
 
-
-
       def generate_class_content(class_def)
         output = []
 
