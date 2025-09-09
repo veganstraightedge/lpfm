@@ -104,15 +104,29 @@ This document outlines the development roadmap for the Literate Programming Flav
 - [x] Generate Markdown with fenced Ruby code blocks
 
 ### 2.1 Ruby Parser (Reverse Engineering)
-- [ ] Integrate Prism gem for Ruby AST parsing
-- [ ] Implement `LPFM::Parser::Ruby` class
-- [ ] Convert Ruby AST to LPFM internal structure:
-  - [ ] Classes/modules → H1 headings
-  - [ ] Methods → H2/H3 headings
-  - [ ] Comments → Markdown prose
-  - [ ] Extract metadata for YAML frontmatter
-- [ ] Handle complex Ruby constructs
-- [ ] Support `type: :ruby` in constructor
+- [x] Integrate Prism gem for Ruby AST parsing
+- [x] Implement `LPFM::Parser::Ruby` class
+- [x] Convert Ruby AST to LPFM internal structure:
+  - [x] Classes/modules → H1 headings
+  - [x] Methods → H2/H3 headings
+  - [x] Comments → Markdown prose
+  - [x] Extract metadata for YAML frontmatter
+- [x] Handle complex Ruby constructs
+- [x] Support `type: :ruby` in constructor
+
+**Status: Phase 2.1 Complete! 🎉**
+- Full Ruby AST parsing using built-in Prism gem
+- Comprehensive Ruby construct support:
+  - Class and module definitions with inheritance
+  - Method definitions with all argument types (required, optional, splat, keyword, block)
+  - Visibility modifiers (public, private, protected)
+  - attr_reader/attr_writer/attr_accessor declarations
+  - Constants and class variables
+  - require, include, extend statements
+  - alias_method declarations
+- Roundtrip conversion: Ruby → LPFM → Ruby maintains semantic consistency
+- 16 comprehensive test cases covering all major Ruby features
+- Error handling for invalid Ruby syntax
 
 ### 2.2 Markdown Parser
 - [ ] Integrate Kramdown gem for Markdown parsing

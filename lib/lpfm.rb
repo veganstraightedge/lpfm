@@ -5,6 +5,7 @@ require_relative "lpfm/data/class_definition"
 require_relative "lpfm/data/module_definition"
 require_relative "lpfm/data/method_definition"
 require_relative "lpfm/parser/lpfm"
+require_relative "lpfm/parser/ruby"
 require_relative "lpfm/converter/ruby"
 require_relative "lpfm/converter/markdown"
 
@@ -99,8 +100,12 @@ module LPFM
     end
 
     def validate_ruby_content
-      # Basic Ruby syntax check would go here
-      # For now, just check it's not empty
+      # Use Prism to validate Ruby syntax
+      result = Prism.parse(@content)
+      if result.failure?
+        errors = result.errors.map(&:message).join(", ")
+        raise Error, "Invalid Ruby syntax: #{errors}"
+      end
       true
     end
 
@@ -116,8 +121,8 @@ module LPFM
         parser = Parser::LPFM.new(@content, self, @filename)
         parser.parse
       when :ruby
-        # TODO: Implement Ruby parser
-        raise Error, "Ruby parsing not yet implemented"
+        parser = Parser::Ruby.new(@content, self, @filename)
+        parser.parse
       when :markdown
         # TODO: Implement Markdown parser
         raise Error, "Markdown parsing not yet implemented"
