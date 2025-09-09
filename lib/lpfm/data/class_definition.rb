@@ -9,8 +9,6 @@ module LPFM
                     :aliases, :alias_methods, :visibility_sections, :prose, :namespace,
                     :inline_attrs, :is_namespace, :in_singleton_block
 
-      attr_writer :namespace
-
       def initialize(name)
         @name = name
         @inherits_from = nil
@@ -108,14 +106,6 @@ module LPFM
 
       def add_inline_attr(type, attrs)
         @inline_attrs << { type: type, attrs: attrs }
-      end
-
-      def inline_attrs
-        @inline_attrs ||= []
-      end
-
-      def namespace
-        @namespace ||= []
       end
 
       def namespace?
