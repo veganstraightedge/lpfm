@@ -253,7 +253,6 @@ RSpec.describe LPFM::Parser::Ruby do
         end
       end
     end
-
   end
 
   private
