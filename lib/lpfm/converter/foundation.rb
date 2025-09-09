@@ -29,11 +29,13 @@ module LPFM
 
       def format_method_arguments(arguments)
         return "" if arguments.empty?
+
         "(#{arguments.join(', ')})"
       end
 
       def format_attribute_list(attributes)
         return "" if attributes.empty?
+
         attributes.map { |attr| ":#{attr}" }.join(", ")
       end
 
@@ -57,6 +59,7 @@ module LPFM
 
       def format_requires(requires)
         return "" if requires.empty?
+
         requires.map { |req| "require '#{req}'" }.join("\n") + "\n"
       end
 

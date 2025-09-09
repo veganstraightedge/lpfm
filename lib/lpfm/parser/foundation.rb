@@ -38,6 +38,7 @@ module LPFM
 
       def normalize_whitespace(text)
         return "" if text.nil?
+
         text.strip.gsub(/\r\n/, "\n")
       end
 

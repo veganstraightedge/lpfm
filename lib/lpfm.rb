@@ -68,6 +68,7 @@ module LPFM
 
     def load_from_file(file)
       raise ArgumentError, "File is not readable" unless file.respond_to?(:read)
+
       file.read
     end
 
