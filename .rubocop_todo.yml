@@ -143,14 +143,6 @@ Style/LineEndConcatenation:
     - 'spec/examples_spec.rb'
     - 'spec/parser_ruby_spec.rb'
 
-# Offense count: 5
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/MapIntoArray:
-  Exclude:
-    - 'lib/lpfm/converter/markdown.rb'
-    - 'lib/lpfm/converter/ruby.rb'
-    - 'lib/lpfm/parser/ruby.rb'
-
 # Offense count: 21
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle, AllowedMethods, AllowedPatterns.

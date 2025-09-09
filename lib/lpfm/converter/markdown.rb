@@ -125,11 +125,9 @@ module LPFM
         output << class_line
 
         # Class body
-        body_parts = []
-
         # Add includes first (Ruby convention)
-        class_def.includes.each do |include_mod|
-          body_parts << "include #{include_mod}"
+        body_parts = class_def.includes.map do |include_mod|
+          "include #{include_mod}"
         end
 
         # Add extends
@@ -259,11 +257,9 @@ module LPFM
         output << "module #{module_def.name}"
 
         # Module body
-        body_parts = []
-
         # Add includes first (Ruby convention)
-        module_def.includes.each do |include_mod|
-          body_parts << "include #{include_mod}"
+        body_parts = module_def.includes.map do |include_mod|
+          "include #{include_mod}"
         end
 
         # Add extends

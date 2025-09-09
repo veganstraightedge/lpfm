@@ -333,11 +333,9 @@ module LPFM
       def extract_method_parameters(params_node)
         return [] unless params_node
 
-        parameters = []
-
         # Required parameters
-        params_node.requireds.each do |param|
-          parameters << param.name.to_s
+        parameters = params_node.requireds.map do |param|
+          param.name.to_s
         end
 
         # Optional parameters with defaults
