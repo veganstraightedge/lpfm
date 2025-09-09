@@ -69,10 +69,6 @@ RSpec/ExpectActual:
     - '**/spec/routing/**/*'
     - 'spec/parser_ruby_spec.rb'
 
-# Offense count: 14
-RSpec/MultipleExpectations:
-  Max: 28
-
 # Offense count: 2
 # Configuration parameters: AllowedPatterns.
 # AllowedPatterns: ^expect_, ^assert_

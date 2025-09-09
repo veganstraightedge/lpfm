@@ -38,6 +38,9 @@ Metrics/PerceivedComplexity:
 RSpec/ExampleLength:
   Max: 83
 
+RSpec/MultipleExpectations:
+  Max: 28
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
