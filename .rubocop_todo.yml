@@ -201,15 +201,6 @@ Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/lpfm/converter/ruby.rb'
 
-# Offense count: 9
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods, MaxChainLength.
-# AllowedMethods: present?, blank?, presence, try, try!
-Style/SafeNavigation:
-  Exclude:
-    - 'lib/lpfm/parser/lpfm.rb'
-    - 'lib/lpfm/parser/ruby.rb'
-
 # Offense count: 1
 # Configuration parameters: Max.
 Style/SafeNavigationChainLength:

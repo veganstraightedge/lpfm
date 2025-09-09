@@ -97,7 +97,7 @@ module LPFM
             when Prism::DefNode
               # Instance method
               method = process_method_node(statement, class_def)
-              method.set_visibility(current_visibility) if method
+              method&.set_visibility(current_visibility)
             else
               process_statement(statement, class_def, namespace_path + [class_name])
             end
@@ -132,7 +132,7 @@ module LPFM
               has_own_content = true
             when Prism::DefNode
               method = process_method_node(statement, module_def)
-              method.set_visibility(current_visibility) if method
+              method&.set_visibility(current_visibility)
               has_own_content = true
             when Prism::ClassNode, Prism::ModuleNode
               # Nested class or module - don't count as own content
@@ -152,16 +152,14 @@ module LPFM
         return unless parent_class_or_module
 
         # Process the body of the class << self block
-        if node.body
-          node.body.body.each do |statement|
-            case statement
-            when Prism::DefNode
-              # Mark method as singleton method
-              method = process_method_node(statement, parent_class_or_module)
-              method.instance_variable_set(:@is_singleton_method, true) if method
-            else
-              process_statement(statement, parent_class_or_module)
-            end
+        node.body&.body&.each do |statement|
+          case statement
+          when Prism::DefNode
+            # Mark method as singleton method
+            method = process_method_node(statement, parent_class_or_module)
+            method&.instance_variable_set(:@is_singleton_method, true)
+          else
+            process_statement(statement, parent_class_or_module)
           end
         end
       end
@@ -382,7 +380,7 @@ module LPFM
         end
 
         # Keyword rest parameter (**kwargs)
-        if params_node.keyword_rest && params_node.keyword_rest.name
+        if params_node.keyword_rest&.name
           parameters << "**#{params_node.keyword_rest.name}"
         elsif params_node.keyword_rest
           parameters << "**"

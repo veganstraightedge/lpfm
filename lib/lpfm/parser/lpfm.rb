@@ -215,18 +215,16 @@ module LPFM
         Array(metadata["extend"]).each { |mod| class_or_module.add_extend(mod) } if metadata["extend"]
 
         # Handle constants
-        metadata["constants"].each { |name, value| class_or_module.add_constant(name, value) } if metadata["constants"]
+        metadata["constants"]&.each { |name, value| class_or_module.add_constant(name, value) }
 
         # Handle class variables
-        metadata["class_variables"].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) } if metadata["class_variables"]
+        metadata["class_variables"]&.each { |name, value| class_or_module.add_class_variable("@@#{name}", value) }
 
         # Handle aliases
-        metadata["aliases"].each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) } if metadata["aliases"]
+        metadata["aliases"]&.each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) }
 
         # Handle alias_method
-        if metadata["alias_method"]
-          metadata["alias_method"].each { |alias_name, original_method| class_or_module.add_alias_method(alias_name, original_method) }
-        end
+        metadata["alias_method"]&.each { |alias_name, original_method| class_or_module.add_alias_method(alias_name, original_method) }
       end
 
       def create_method(title, visibility, class_or_module)
