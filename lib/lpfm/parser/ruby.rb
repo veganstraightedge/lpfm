@@ -486,7 +486,7 @@ module LPFM
       def format_parameter_default(value)
         case value
         when String
-          "\"#{value}\""
+          %("#{value}")
         when Symbol
           ":#{value}"
         else
