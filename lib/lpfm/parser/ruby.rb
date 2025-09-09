@@ -306,7 +306,7 @@ module LPFM
                           node.name.to_s
                         when Prism::ConstantPathWriteNode
                           extract_constant_name(node.target)
-                       end
+                        end
 
         if constant_name
           value = extract_literal_value(node.value)

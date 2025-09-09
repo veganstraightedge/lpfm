@@ -407,7 +407,7 @@ module LPFM
                          "self."
                         else
                          ""
-                       end
+                        end
         method_args = format_method_arguments(method.arguments)
         method_line = "def #{method_prefix}#{method.name}#{method_args}"
 
