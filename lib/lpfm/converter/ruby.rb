@@ -79,8 +79,18 @@ module LPFM
           body_parts << ""
         end
 
-        # Add attr_* methods
-        body_parts.concat(format_attr_methods(class_def))
+        # Add attr_* methods (YAML first, then inline in order)
+        yaml_attrs = format_attr_methods(class_def)
+        inline_attrs = format_inline_attr_methods(class_def)
+
+        body_parts.concat(yaml_attrs)
+
+        # Add spacing between YAML and inline attrs if both exist
+        if !yaml_attrs.empty? && !inline_attrs.empty?
+          body_parts << ""
+        end
+
+        body_parts.concat(inline_attrs)
 
         # Add class variables
         class_def.class_variables.each do |name, value|
@@ -92,15 +102,27 @@ module LPFM
           body_parts << ""
         end
 
-        # Group methods by visibility
-        public_methods = class_def.methods.select(&:public?)
-        private_methods = class_def.methods.select(&:private?)
-        protected_methods = class_def.methods.select(&:protected?)
+        # Group methods by visibility and singleton status
+        public_methods = class_def.methods.select { |m| m.public? && !m.instance_variable_get(:@is_singleton_method) }
+        private_methods = class_def.methods.select { |m| m.private? && !m.instance_variable_get(:@is_singleton_method) }
+        protected_methods = class_def.methods.select { |m| m.protected? && !m.instance_variable_get(:@is_singleton_method) }
+        singleton_methods = class_def.methods.select { |m| m.instance_variable_get(:@is_singleton_method) }
 
         # Add public methods
         public_methods.each_with_index do |method, index|
           body_parts << "" if index > 0  # Add blank line between methods
           body_parts << convert_method(method, include_prose)
+        end
+
+        # Add singleton class block if there are singleton methods
+        unless singleton_methods.empty?
+          body_parts << ""
+          body_parts << "class << self"
+          singleton_methods.each_with_index do |method, index|
+            body_parts << "" if index > 0
+            body_parts << convert_method(method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
+          end
+          body_parts << "end"
         end
 
         # Add protected methods first (as they appear first in LPFM)
@@ -189,8 +211,9 @@ module LPFM
           body_parts << ""
         end
 
-        # Add attr_* methods
+        # Add attr_* methods (YAML first, then inline in order)
         body_parts.concat(format_attr_methods(module_def))
+        body_parts.concat(format_inline_attr_methods(module_def))
 
         # Add class variables
         module_def.class_variables.each do |name, value|
@@ -295,6 +318,29 @@ module LPFM
         unless class_or_module.attr_accessors.empty?
           accessors = format_attribute_list(class_or_module.attr_accessors)
           attr_parts << "attr_accessor #{accessors}"
+        end
+
+        attr_parts
+      end
+
+      def format_inline_attr_methods(class_or_module)
+        inline_attrs = class_or_module.instance_variable_get(:@inline_attrs)
+        return [] unless inline_attrs
+
+        attr_parts = []
+
+        inline_attrs.each do |attr_info|
+          case attr_info[:type]
+          when :reader
+            readers = format_attribute_list(attr_info[:attrs])
+            attr_parts << "attr_reader #{readers}"
+          when :writer
+            writers = format_attribute_list(attr_info[:attrs])
+            attr_parts << "attr_writer #{writers}"
+          when :accessor
+            accessors = format_attribute_list(attr_info[:attrs])
+            attr_parts << "attr_accessor #{accessors}"
+          end
         end
 
         attr_parts

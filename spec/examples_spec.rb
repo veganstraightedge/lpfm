@@ -21,8 +21,8 @@ RSpec.describe "LPFM Examples" do
     return unless File.exist?(ruby_file)
 
     # Load and parse the LPFM content
-    lpfm_content = File.read(lpfm_file)
-    lpfm = LPFM::LPFM.new(lpfm_content)
+    # Use filename path for cases that need filename inference
+    lpfm = LPFM::LPFM.new(lpfm_file)
 
     # Generate Ruby code
     generated_ruby = lpfm.to_ruby

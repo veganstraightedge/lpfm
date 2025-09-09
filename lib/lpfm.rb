@@ -41,6 +41,8 @@ module LPFM
       validate_content
       parse_content
       self
+    rescue ArgumentError => e
+      raise e
     rescue => e
       raise Error, "Failed to load content: #{e.message}"
     end
@@ -85,9 +87,12 @@ module LPFM
       has_h1_heading = @content.match?(/^#[^#]/)
       has_other_headings = @content.match?(/^##/)
       has_yaml_frontmatter = @content.start_with?('---')
+      has_content = !@content.strip.empty?
 
-      # Allow filename inference if we have methods (H2) or YAML frontmatter but no H1
-      unless has_h1_heading || (has_other_headings && @filename) || (has_yaml_frontmatter && @filename)
+      # Allow filename inference if we have methods (H2) or YAML frontmatter but no H1, AND we have a filename
+      can_infer_from_filename = @filename && (has_other_headings || has_yaml_frontmatter) && has_content
+
+      unless has_h1_heading || can_infer_from_filename
         raise Error, "LPFM content must contain at least one H1 heading or be suitable for filename-based inference"
       end
     end
