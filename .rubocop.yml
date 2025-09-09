@@ -9,7 +9,7 @@ AllCops:
   TargetRubyVersion: 3.4
   NewCops: enable
   Exclude:
-    - doc/examples/
+    - doc/examples/**/*
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
