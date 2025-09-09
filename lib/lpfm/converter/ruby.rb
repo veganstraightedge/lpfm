@@ -18,20 +18,95 @@ module LPFM
           output << ""
         end
 
-        # Convert classes
-        @lpfm_object.classes.each_with_index do |(name, class_def), index|
-          output << "" if index > 0  # Add blank line between classes
-          output << convert_class(class_def, include_prose_as_comments)
-        end
+        # Group classes and modules by namespace
+        namespaced_output = generate_namespaced_output(include_prose_as_comments)
 
-        # Convert modules
-        @lpfm_object.modules.each_with_index do |(name, module_def), index|
-          # Add blank line if we have classes before modules, or between modules
-          output << "" if (!@lpfm_object.classes.empty? && index == 0) || index > 0
-          output << convert_module(module_def, include_prose_as_comments)
+        # Add namespaced output
+        namespaced_output.each_with_index do |content, index|
+          output << "" if index > 0
+          output << content
         end
 
         output.join("\n")
+      end
+
+      def generate_namespaced_output(include_prose = false)
+        result_parts = []
+        namespace_groups = {}
+        standalone_items = []
+
+        # Group classes by namespace
+        @lpfm_object.classes.each do |name, class_def|
+          namespace = class_def.instance_variable_get(:@namespace)
+          if namespace && !namespace.empty?
+            namespace_key = namespace.join('::')
+            namespace_groups[namespace_key] ||= { modules: [], classes: [] }
+            namespace_groups[namespace_key][:classes] << class_def
+          else
+            standalone_items << { type: :class, item: class_def }
+          end
+        end
+
+        # Group modules by namespace (excluding namespace modules themselves)
+        @lpfm_object.modules.each do |name, module_def|
+          unless module_def.instance_variable_get(:@is_namespace)
+            namespace = module_def.instance_variable_get(:@namespace)
+            if namespace && !namespace.empty?
+              namespace_key = namespace.join('::')
+              namespace_groups[namespace_key] ||= { modules: [], classes: [] }
+              namespace_groups[namespace_key][:modules] << module_def
+            else
+              standalone_items << { type: :module, item: module_def }
+            end
+          end
+        end
+
+        # Generate namespaced output
+        namespace_groups.each do |namespace_key, items|
+          namespace_parts = namespace_key.split('::')
+          namespace_lines = []
+
+          # Open namespace modules with proper nesting
+          namespace_parts.each_with_index do |ns, depth|
+            indent = "  " * depth
+            namespace_lines << "#{indent}module #{ns}"
+          end
+
+          # Add classes and modules within namespace
+          all_items = items[:modules] + items[:classes]
+          all_items.each do |item|
+            if item.is_a?(Data::ClassDefinition)
+              content = convert_class(item, include_prose)
+            else
+              content = convert_module(item, include_prose)
+            end
+            # Indent content for all namespace levels
+            base_indent = "  " * namespace_parts.length
+            content.split("\n").each do |line|
+              namespace_lines << (line.empty? ? "" : "#{base_indent}#{line}")
+            end
+          end
+
+          # Close namespace modules in reverse order with proper indentation
+          namespace_parts.reverse.each_with_index do |_, index|
+            depth = namespace_parts.length - 1 - index
+            indent = "  " * depth
+            namespace_lines << "#{indent}end"
+          end
+
+          result_parts << namespace_lines.join("\n")
+        end
+
+        # Add standalone items
+        standalone_items.each do |item_info|
+          if item_info[:type] == :class
+            result_parts << convert_class(item_info[:item], include_prose)
+          else
+            result_parts << convert_module(item_info[:item], include_prose)
+          end
+        end
+
+        result_parts
       end
 
       private
@@ -63,19 +138,28 @@ module LPFM
           body_parts << "extend #{extend_mod}"
         end
 
-        # Add spacing after includes/extends if we have other content
-        if (class_def.has_includes? || class_def.extends.any?) &&
-           (class_def.has_attr_methods? || class_def.has_constants? || class_def.has_class_variables? || class_def.has_methods?)
+        # Add spacing after includes/extends if we have constants, class variables, attrs, or methods
+        has_includes_or_extends = class_def.has_includes? || class_def.extends.any?
+        has_constants_or_vars = class_def.has_constants? || class_def.has_class_variables?
+        has_attrs = class_def.has_attr_methods?
+
+        if has_includes_or_extends && (has_constants_or_vars || has_attrs || class_def.has_methods?)
           body_parts << ""
         end
 
-        # Add constants first
+        # Add class variables
+        class_def.class_variables.each do |name, value|
+          body_parts << "#{name} = #{normalize_constant_value(value)}"
+        end
+
+        # Add constants
         class_def.constants.each do |name, value|
           body_parts << "#{name} = #{normalize_constant_value(value)}"
         end
 
-        # Add spacing after constants if we have attr methods or methods
-        if class_def.has_constants? && (class_def.has_attr_methods? || class_def.has_methods?)
+        # Add spacing after constants/class_variables if we have attr methods or methods
+        if (class_def.has_constants? || class_def.has_class_variables?) &&
+           (class_def.has_attr_methods? || class_def.has_methods?)
           body_parts << ""
         end
 
@@ -92,38 +176,72 @@ module LPFM
 
         body_parts.concat(inline_attrs)
 
-        # Add class variables
-        class_def.class_variables.each do |name, value|
-          body_parts << "#{name} = #{normalize_constant_value(value)}"
-        end
-
-        # Add spacing after attr methods or class variables if we have instance methods
-        if class_def.has_methods? && (class_def.has_attr_methods? || class_def.has_class_variables?) && !class_def.has_constants?
+        # Add spacing after attr methods if we have methods
+        if (class_def.has_attr_methods? || !yaml_attrs.empty? || !inline_attrs.empty?) && class_def.has_methods?
           body_parts << ""
         end
 
-        # Group methods by visibility and singleton status
-        public_methods = class_def.methods.select { |m| m.public? && !m.instance_variable_get(:@is_singleton_method) }
-        private_methods = class_def.methods.select { |m| m.private? && !m.instance_variable_get(:@is_singleton_method) }
-        protected_methods = class_def.methods.select { |m| m.protected? && !m.instance_variable_get(:@is_singleton_method) }
-        singleton_methods = class_def.methods.select { |m| m.instance_variable_get(:@is_singleton_method) }
 
-        # Add public methods
-        public_methods.each_with_index do |method, index|
-          body_parts << "" if index > 0  # Add blank line between methods
+
+        # Group methods to preserve ordering relative to class << self block
+        methods_before_singleton = []
+        object_singleton_methods = []
+        class_singleton_methods = []
+        methods_after_singleton = []
+
+        # Track whether we've encountered the singleton block
+        found_singleton_block = false
+
+        class_def.methods.each do |method|
+          if method.instance_variable_get(:@is_singleton_method)
+            # This is a class method from class << self block
+            class_singleton_methods << method
+            found_singleton_block = true
+          elsif method.class_method? && method.name.include?('.')
+            # This is an object singleton method like admin.revoke_access
+            object_singleton_methods << method
+          elsif method.public?
+            # Regular public instance method - check if it comes after singleton block
+            if found_singleton_block
+              methods_after_singleton << method
+            else
+              methods_before_singleton << method
+            end
+          end
+        end
+
+        # Add public methods that came before singleton block
+        methods_before_singleton.each_with_index do |method, index|
+          body_parts << "" if index > 0
           body_parts << convert_method(method, include_prose)
         end
 
-        # Add singleton class block if there are singleton methods
-        unless singleton_methods.empty?
-          body_parts << ""
+        # Add object singleton methods (like admin.revoke_access)
+        object_singleton_methods.each_with_index do |method, index|
+          body_parts << "" if index > 0 || !methods_before_singleton.empty?
+          body_parts << convert_method(method, include_prose)
+        end
+
+        # Add class singleton methods in class << self block
+        unless class_singleton_methods.empty?
+          body_parts << "" if !methods_before_singleton.empty? || !object_singleton_methods.empty?
           body_parts << "class << self"
-          singleton_methods.each_with_index do |method, index|
+          class_singleton_methods.each_with_index do |method, index|
             body_parts << "" if index > 0
             body_parts << convert_method(method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
           end
           body_parts << "end"
         end
+
+        # Add public methods that came after singleton block
+        methods_after_singleton.each_with_index do |method, index|
+          body_parts << "" if index > 0 || !class_singleton_methods.empty? || !object_singleton_methods.empty? || !methods_before_singleton.empty?
+          body_parts << convert_method(method, include_prose)
+        end
+
+        # Group remaining methods by visibility
+        private_methods = class_def.methods.select { |m| m.private? && !m.instance_variable_get(:@is_singleton_method) && !m.class_method? }
+        protected_methods = class_def.methods.select { |m| m.protected? && !m.instance_variable_get(:@is_singleton_method) && !m.class_method? }
 
         # Add protected methods first (as they appear first in LPFM)
         unless protected_methods.empty?
@@ -286,7 +404,12 @@ module LPFM
         end
 
         # Method definition line
-        method_prefix = method.class_method? ? "self." : ""
+        # Don't add self. prefix for object singleton methods that already contain dots
+        method_prefix = if method.class_method? && !method.name.include?('.')
+                         "self."
+                       else
+                         ""
+                       end
         method_args = format_method_arguments(method.arguments)
         method_line = "def #{method_prefix}#{method.name}#{method_args}"
 

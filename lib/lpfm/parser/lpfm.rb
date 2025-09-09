@@ -124,6 +124,9 @@ module LPFM
           class_name = title.sub(/^class\s+/, '')
           @lpfm_object.add_class(class_name)
           class_or_module = @lpfm_object.get_class(class_name)
+        elsif title.include?('::')
+          # Handle namespaced classes/modules
+          class_or_module = create_namespaced_class_or_module(title, metadata)
         elsif metadata['type'] == 'module'
           @lpfm_object.add_module(title)
           class_or_module = @lpfm_object.get_module(title)
@@ -137,8 +140,46 @@ module LPFM
           end
         end
 
-        # Process metadata attributes
-        process_metadata_for_class_or_module(class_or_module, metadata)
+        # Process metadata attributes if we have a single class/module
+        if class_or_module
+          process_metadata_for_class_or_module(class_or_module, metadata)
+        end
+
+        class_or_module
+      end
+
+      def create_namespaced_class_or_module(title, metadata)
+        # Split namespace from class name: "MyApp::UserService" -> ["MyApp", "UserService"]
+        parts = title.split('::')
+        class_name = parts.pop
+        namespace_parts = parts
+
+        # Create nested modules for namespace
+        namespace_parts.each do |namespace|
+          unless @lpfm_object.get_module(namespace)
+            @lpfm_object.add_module(namespace)
+            # Mark this as a namespace module
+            namespace_module = @lpfm_object.get_module(namespace)
+            namespace_module.instance_variable_set(:@is_namespace, true)
+          end
+        end
+
+        # Create the actual class
+        if metadata['type'] == 'module'
+          @lpfm_object.add_module(class_name)
+          class_or_module = @lpfm_object.get_module(class_name)
+        else
+          @lpfm_object.add_class(class_name)
+          class_or_module = @lpfm_object.get_class(class_name)
+        end
+
+        # Store namespace information
+        class_or_module.instance_variable_set(:@namespace, namespace_parts)
+
+        # Handle inheritance
+        if metadata['inherits_from']
+          class_or_module.inherits_from = metadata['inherits_from']
+        end
 
         class_or_module
       end

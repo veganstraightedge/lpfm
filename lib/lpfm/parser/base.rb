@@ -82,7 +82,15 @@ module LPFM
       end
 
       def is_class_method?(name)
-        name.start_with?('self.') || name.include?('self.')
+        name.start_with?('self.') || name.include?('self.') || is_object_singleton_method?(name)
+      end
+
+      def is_object_singleton_method?(name)
+        # Check if it's an object singleton method like admin.method_name or user.method_name
+        # But not self.method_name which is handled separately
+        # Extract just the method name part (before any parentheses) to avoid false positives from parameter values
+        method_name_part = name.split('(').first.strip
+        method_name_part.include?('.') && !method_name_part.include?('self.')
       end
 
       def is_visibility_modifier?(name)
