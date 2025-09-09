@@ -39,7 +39,7 @@ module LPFM
       def normalize_whitespace(text)
         return "" if text.nil?
 
-        text.strip.gsub(/\r\n/, "\n")
+        text.strip.gsub("\r\n", "\n")
       end
 
       def split_into_lines(text)
