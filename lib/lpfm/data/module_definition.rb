@@ -4,10 +4,9 @@ module LPFM
   module Data
     # Represents a Ruby module definition in LPFM
     class ModuleDefinition
-      attr_accessor :name, :methods, :constants, :class_variables,
-                    :attr_readers, :attr_writers, :attr_accessors, :includes, :extends,
-                    :aliases, :alias_methods, :visibility_sections, :prose, :namespace,
-                    :inline_attrs, :is_namespace, :in_singleton_block
+      attr_accessor :alias_methods, :aliases, :attr_accessors, :attr_readers, :attr_writers,
+                    :class_variables, :constants, :extends, :in_singleton_block, :includes,
+                    :inline_attrs, :is_namespace, :methods, :name, :namespace, :prose, :visibility_sections
 
       def initialize(name)
         @name = name

@@ -4,8 +4,7 @@ module LPFM
   module Data
     # Represents a Ruby method definition in LPFM
     class MethodDefinition
-      attr_accessor :name, :arguments, :body, :visibility, :is_class_method, :prose,
-                    :is_singleton_method
+      attr_accessor :arguments, :body, :is_class_method, :is_singleton_method, :name, :prose, :visibility
 
       def initialize(name, visibility: :public)
         @name = name
