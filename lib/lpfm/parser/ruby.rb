@@ -463,9 +463,7 @@ module LPFM
         case node
         when Prism::StringNode
           node.unescaped
-        when Prism::IntegerNode
-          node.value
-        when Prism::FloatNode
+        when Prism::IntegerNode, Prism::FloatNode
           node.value
         when Prism::TrueNode
           true
