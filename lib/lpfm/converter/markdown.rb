@@ -170,15 +170,12 @@ module LPFM
 
         body_parts.concat(yaml_attrs)
 
-        # Add spacing between YAML and inline attrs if both exist
-        if !yaml_attrs.empty? && !inline_attrs.empty?
-          body_parts << ""
-        end
-
         body_parts.concat(inline_attrs)
 
-        # Add spacing after attr methods if we have methods
-        if (class_def.has_attr_methods? || !yaml_attrs.empty? || !inline_attrs.empty?) && class_def.has_methods?
+        # Add spacing after any attr methods if we have methods (but not aliases, since they handle their own spacing)
+        has_methods = class_def.has_methods?
+        has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
+        if has_any_attrs && has_methods
           body_parts << ""
         end
 
@@ -238,7 +235,11 @@ module LPFM
 
         # Add aliases at the end
         if class_def.has_aliases?
-          body_parts << ""
+          # Only add spacing if there are attrs or methods before aliases
+          has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
+          if has_any_attrs || class_def.has_methods?
+            body_parts << ""
+          end
           class_def.aliases.each do |alias_name, original_method|
             body_parts << "alias #{alias_name} #{original_method}"
           end
@@ -295,8 +296,17 @@ module LPFM
         end
 
         # Add attr_* methods (YAML first, then inline in order)
-        body_parts.concat(format_attr_methods(module_def))
-        body_parts.concat(format_inline_attr_methods(module_def))
+        yaml_attrs = format_attr_methods(module_def)
+        inline_attrs = format_inline_attr_methods(module_def)
+        body_parts.concat(yaml_attrs)
+        body_parts.concat(inline_attrs)
+
+        # Add spacing after any attr methods if we have methods or class variables (but not aliases, since they handle their own spacing)
+        has_methods_or_vars = module_def.has_methods? || !module_def.class_variables.empty?
+        has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
+        if has_any_attrs && has_methods_or_vars
+          body_parts << ""
+        end
 
         # Add class variables
         module_def.class_variables.each do |name, value|
@@ -338,7 +348,11 @@ module LPFM
 
         # Add aliases at the end
         if module_def.has_aliases?
-          body_parts << ""
+          # Only add spacing if there are attrs, methods, or class variables before aliases
+          has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
+          if has_any_attrs || module_def.has_methods? || !module_def.class_variables.empty?
+            body_parts << ""
+          end
           module_def.aliases.each do |alias_name, original_method|
             body_parts << "alias #{alias_name} #{original_method}"
           end
