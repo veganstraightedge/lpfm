@@ -32,9 +32,9 @@ RSpec.describe "LPFM Examples" do
 
     # Compare (normalize whitespace for comparison)
     expect(generated_ruby.strip).to eq(expected_ruby.strip),
-      "Generated Ruby doesn't match expected for #{example_name}.\n" +
-      "Generated:\n#{generated_ruby}\n\n" +
-      "Expected:\n#{expected_ruby}"
+                                    "Generated Ruby doesn't match expected for #{example_name}.\n" +
+                                    "Generated:\n#{generated_ruby}\n\n" +
+                                    "Expected:\n#{expected_ruby}"
   end
 
   describe "All examples convert correctly" do

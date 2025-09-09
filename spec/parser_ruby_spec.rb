@@ -48,10 +48,10 @@ RSpec.describe LPFM::Parser::Ruby do
             generated_normalized = normalize_ruby_code(final_ruby_content)
 
             expect(generated_normalized).to eq(original_normalized),
-              "Generated Ruby code should match original for #{example[:name]}.\n" +
-              "Original:\n#{original_ruby_content}\n\n" +
-              "Generated:\n#{final_ruby_content}\n\n" +
-              "Difference in normalized versions"
+                                            "Generated Ruby code should match original for #{example[:name]}.\n" +
+                                            "Original:\n#{original_ruby_content}\n\n" +
+                                            "Generated:\n#{final_ruby_content}\n\n" +
+                                            "Difference in normalized versions"
 
             # Step 7: Compare original and final internal structures
             original_classes = lpfm_from_ruby.classes
@@ -62,7 +62,7 @@ RSpec.describe LPFM::Parser::Ruby do
 
             # Verify class consistency
             expect(final_classes.keys.sort).to eq(original_classes.keys.sort),
-              "Class names should match after roundtrip for #{example[:name]}"
+                                               "Class names should match after roundtrip for #{example[:name]}"
 
             original_classes.each do |class_name, original_class|
               final_class = final_classes[class_name]
@@ -70,54 +70,54 @@ RSpec.describe LPFM::Parser::Ruby do
 
               # Compare class properties
               expect(final_class.inherits_from).to eq(original_class.inherits_from),
-                "Inheritance should match for class #{class_name}"
+                                                   "Inheritance should match for class #{class_name}"
 
               expect(final_class.includes.sort).to eq(original_class.includes.sort),
-                "Includes should match for class #{class_name}"
+                                                   "Includes should match for class #{class_name}"
 
               expect(final_class.extends.sort).to eq(original_class.extends.sort),
-                "Extends should match for class #{class_name}"
+                                                  "Extends should match for class #{class_name}"
 
               expect(final_class.attr_readers.sort).to eq(original_class.attr_readers.sort),
-                "Attr readers should match for class #{class_name}"
+                                                       "Attr readers should match for class #{class_name}"
 
               expect(final_class.attr_writers.sort).to eq(original_class.attr_writers.sort),
-                "Attr writers should match for class #{class_name}"
+                                                       "Attr writers should match for class #{class_name}"
 
               expect(final_class.attr_accessors.sort).to eq(original_class.attr_accessors.sort),
-                "Attr accessors should match for class #{class_name}"
+                                                         "Attr accessors should match for class #{class_name}"
 
               expect(final_class.constants).to eq(original_class.constants),
-                "Constants should match for class #{class_name}"
+                                               "Constants should match for class #{class_name}"
 
               expect(final_class.class_variables).to eq(original_class.class_variables),
-                "Class variables should match for class #{class_name}"
+                                                     "Class variables should match for class #{class_name}"
 
               # Compare methods
               expect(final_class.methods.size).to eq(original_class.methods.size),
-                "Method count should match for class #{class_name}"
+                                                  "Method count should match for class #{class_name}"
 
               original_methods = original_class.methods.sort_by(&:name)
               final_methods = final_class.methods.sort_by(&:name)
 
               original_methods.zip(final_methods).each do |orig_method, final_method|
                 expect(final_method.name).to eq(orig_method.name),
-                  "Method name should match"
+                                             "Method name should match"
 
                 expect(final_method.visibility).to eq(orig_method.visibility),
-                  "Method visibility should match for #{orig_method.name}"
+                                                   "Method visibility should match for #{orig_method.name}"
 
                 expect(final_method.arguments).to eq(orig_method.arguments),
-                  "Method arguments should match for #{orig_method.name}"
+                                                  "Method arguments should match for #{orig_method.name}"
 
                 expect(final_method.class_method?).to eq(orig_method.class_method?),
-                  "Class method status should match for #{orig_method.name}"
+                                                      "Class method status should match for #{orig_method.name}"
               end
             end
 
             # Verify module consistency
             expect(final_modules.keys.sort).to eq(original_modules.keys.sort),
-              "Module names should match after roundtrip for #{example[:name]}"
+                                               "Module names should match after roundtrip for #{example[:name]}"
 
             original_modules.each do |module_name, original_module|
               final_module = final_modules[module_name]
@@ -125,33 +125,33 @@ RSpec.describe LPFM::Parser::Ruby do
 
               # Compare module properties (similar to classes)
               expect(final_module.includes.sort).to eq(original_module.includes.sort),
-                "Includes should match for module #{module_name}"
+                                                    "Includes should match for module #{module_name}"
 
               expect(final_module.extends.sort).to eq(original_module.extends.sort),
-                "Extends should match for module #{module_name}"
+                                                   "Extends should match for module #{module_name}"
 
               expect(final_module.constants).to eq(original_module.constants),
-                "Constants should match for module #{module_name}"
+                                                "Constants should match for module #{module_name}"
 
               # Compare module methods
               original_methods = original_module.methods.sort_by(&:name)
               final_methods = final_module.methods.sort_by(&:name)
 
               expect(final_methods.size).to eq(original_methods.size),
-                "Method count should match for module #{module_name}"
+                                            "Method count should match for module #{module_name}"
 
               original_methods.zip(final_methods).each do |orig_method, final_method|
                 expect(final_method.name).to eq(orig_method.name),
-                  "Method name should match in module #{module_name}"
+                                             "Method name should match in module #{module_name}"
 
                 expect(final_method.visibility).to eq(orig_method.visibility),
-                  "Method visibility should match for #{module_name}.#{orig_method.name}"
+                                                   "Method visibility should match for #{module_name}.#{orig_method.name}"
               end
             end
 
             # Verify requires
             expect(lpfm_final.requires.sort).to eq(lpfm_from_ruby.requires.sort),
-              "Requires should match after roundtrip"
+                                                "Requires should match after roundtrip"
           end
         end
 

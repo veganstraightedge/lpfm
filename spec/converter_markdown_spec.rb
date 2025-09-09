@@ -32,9 +32,9 @@ RSpec.describe "LPFM Markdown Converter Examples" do
 
     # Compare (normalize whitespace for comparison)
     expect(generated_markdown.strip).to eq(expected_markdown.strip),
-      "Generated Markdown doesn't match expected for #{example_name}.\n" +
-      "Generated:\n#{generated_markdown}\n\n" +
-      "Expected:\n#{expected_markdown}"
+                                        "Generated Markdown doesn't match expected for #{example_name}.\n" +
+                                        "Generated:\n#{generated_markdown}\n\n" +
+                                        "Expected:\n#{expected_markdown}"
   end
 
   describe "All examples convert correctly to Markdown" do
