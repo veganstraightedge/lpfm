@@ -132,11 +132,10 @@ module LPFM
             when Prism::CallNode
               if is_visibility_call?(statement)
                 current_visibility = extract_visibility(statement)
-                has_own_content = true
               else
                 process_call_node(statement, module_def)
-                has_own_content = true
               end
+              has_own_content = true
             when Prism::DefNode
               method = process_method_node(statement, module_def)
               method.set_visibility(current_visibility) if method

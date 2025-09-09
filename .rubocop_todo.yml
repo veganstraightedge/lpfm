@@ -169,12 +169,6 @@ Style/HashLikeCase:
   Exclude:
     - 'lib/lpfm/parser/ruby.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/IdenticalConditionalBranches:
-  Exclude:
-    - 'lib/lpfm/parser/ruby.rb'
-
 # Offense count: 32
 # This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:
