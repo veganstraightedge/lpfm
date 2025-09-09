@@ -1,0 +1,19 @@
+class Builder
+  def self.define_attribute(name)
+    define_method(name) do
+      instance_variable_get("@#{name}")
+    end
+
+    define_method("#{name}=") do |value|
+      instance_variable_set("@#{name}", value)
+    end
+  end
+
+  def self.create_methods(*method_names)
+    method_names.each do |name|
+      define_method(name) do
+        puts "Called #{name}"
+      end
+    end
+  end
+end

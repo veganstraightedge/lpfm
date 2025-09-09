@@ -4,11 +4,26 @@ require_relative 'base'
 
 module LPFM
   module Converter
-    # Converter for generating Ruby code from LPFM internal structure
-    class Ruby < Base
-      def convert(include_prose_as_comments: false)
+    # Converter for generating Markdown with fenced Ruby code blocks from LPFM internal structure
+    class Markdown < Base
+      def convert(include_prose: true)
         return "" unless has_content?
 
+        output = []
+
+        # Generate single fenced code block with all Ruby code
+        ruby_code = generate_all_ruby_code
+
+        if !ruby_code.empty?
+          output << "```ruby"
+          output << ruby_code
+          output << "```"
+        end
+
+        output.join("\n")
+      end
+
+      def generate_all_ruby_code
         output = []
 
         # Add requires at the top
@@ -19,19 +34,6 @@ module LPFM
         end
 
         # Group classes and modules by namespace
-        namespaced_output = generate_namespaced_output(include_prose_as_comments)
-
-        # Add namespaced output
-        namespaced_output.each_with_index do |content, index|
-          output << "" if index > 0
-          output << content
-        end
-
-        output.join("\n")
-      end
-
-      def generate_namespaced_output(include_prose = false)
-        result_parts = []
         namespace_groups = {}
         standalone_items = []
 
@@ -61,29 +63,32 @@ module LPFM
           end
         end
 
-        # Generate namespaced output
-        namespace_groups.each do |namespace_key, items|
+        # Generate namespaced items
+        namespace_groups.each_with_index do |(namespace_key, items), index|
+          output << "" if index > 0 || (!requires_output.empty? && !standalone_items.empty?)
           namespace_parts = namespace_key.split('::')
-          namespace_lines = []
 
           # Open namespace modules with proper nesting
           namespace_parts.each_with_index do |ns, depth|
             indent = "  " * depth
-            namespace_lines << "#{indent}module #{ns}"
+            output << "#{indent}module #{ns}"
           end
 
           # Add classes and modules within namespace
           all_items = items[:modules] + items[:classes]
-          all_items.each do |item|
+          all_items.each_with_index do |item, item_index|
+            output << "" if item_index > 0
+
             if item.is_a?(Data::ClassDefinition)
-              content = convert_class(item, include_prose)
+              content = generate_class_content(item)
             else
-              content = convert_module(item, include_prose)
+              content = generate_module_content(item)
             end
+
             # Indent content for all namespace levels
             base_indent = "  " * namespace_parts.length
             content.split("\n").each do |line|
-              namespace_lines << (line.empty? ? "" : "#{base_indent}#{line}")
+              output << (line.empty? ? "" : "#{base_indent}#{line}")
             end
           end
 
@@ -91,34 +96,30 @@ module LPFM
           namespace_parts.reverse.each_with_index do |_, index|
             depth = namespace_parts.length - 1 - index
             indent = "  " * depth
-            namespace_lines << "#{indent}end"
+            output << "#{indent}end"
           end
-
-          result_parts << namespace_lines.join("\n")
         end
 
         # Add standalone items
-        standalone_items.each do |item_info|
+        standalone_items.each_with_index do |item_info, index|
+          output << "" if index > 0 || (!namespace_groups.empty? && index == 0)
+
           if item_info[:type] == :class
-            result_parts << convert_class(item_info[:item], include_prose)
+            output << generate_class_content(item_info[:item])
           else
-            result_parts << convert_module(item_info[:item], include_prose)
+            output << generate_module_content(item_info[:item])
           end
         end
 
-        result_parts
+        output.join("\n")
       end
 
       private
 
-      def convert_class(class_def, include_prose = false)
-        output = []
 
-        # Add class prose as comments if requested
-        if include_prose
-          prose_sections = extract_prose_sections(class_def)
-          output << format_prose_as_comments(prose_sections) unless prose_sections.empty?
-        end
+
+      def generate_class_content(class_def)
+        output = []
 
         # Class definition line
         class_line = "class #{class_def.name}"
@@ -202,7 +203,7 @@ module LPFM
             if in_singleton_block
               singleton_methods.each_with_index do |singleton_method, index|
                 body_parts << "" if index > 0
-                body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
+                body_parts << convert_method(singleton_method).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
               end
               body_parts << "end"
               singleton_methods.clear
@@ -220,7 +221,7 @@ module LPFM
               current_visibility = method.visibility
             end
 
-            body_parts << convert_method(method, include_prose)
+            body_parts << convert_method(method)
           end
 
           method_index += 1
@@ -230,7 +231,7 @@ module LPFM
         if in_singleton_block
           singleton_methods.each_with_index do |singleton_method, index|
             body_parts << "" if index > 0
-            body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
+            body_parts << convert_method(singleton_method).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
           end
           body_parts << "end"
         end
@@ -258,14 +259,8 @@ module LPFM
         output.join("\n")
       end
 
-      def convert_module(module_def, include_prose = false)
+      def generate_module_content(module_def)
         output = []
-
-        # Add module prose as comments if requested
-        if include_prose
-          prose_sections = extract_prose_sections(module_def)
-          output << format_prose_as_comments(prose_sections) unless prose_sections.empty?
-        end
 
         # Module definition line
         output << "module #{module_def.name}"
@@ -316,7 +311,7 @@ module LPFM
         # Add public methods
         public_methods.each_with_index do |method, index|
           body_parts << "" if index > 0  # Add blank line between methods
-          body_parts << convert_method(method, include_prose)
+          body_parts << convert_method(method)
         end
 
         # Add protected methods first (as they appear first in LPFM)
@@ -326,7 +321,7 @@ module LPFM
           body_parts << ""
           protected_methods.each_with_index do |method, index|
             body_parts << "" if index > 0  # Add blank line between methods
-            body_parts << convert_method(method, include_prose)
+            body_parts << convert_method(method)
           end
         end
 
@@ -337,7 +332,7 @@ module LPFM
           body_parts << ""
           private_methods.each_with_index do |method, index|
             body_parts << "" if index > 0  # Add blank line between methods
-            body_parts << convert_method(method, include_prose)
+            body_parts << convert_method(method)
           end
         end
 
@@ -364,14 +359,8 @@ module LPFM
         output.join("\n")
       end
 
-      def convert_method(method, include_prose = false)
+      def convert_method(method)
         output = []
-
-        # Add method prose as comments if requested
-        if include_prose && method.has_prose?
-          method_prose = { method: method.prose }
-          output << format_prose_as_comments(method_prose, 1)
-        end
 
         # Method definition line
         # Don't add self. prefix for object singleton methods that already contain dots

@@ -1,0 +1,27 @@
+# Service
+
+## initialize
+@data = {}
+
+## public_method
+puts "This is public"
+private_helper
+
+## private
+
+### private_helper
+puts "This is private"
+
+## protected
+
+### protected_method
+puts "This is protected"
+
+## another_public_method
+puts "Another public method"
+protected_method
+
+## private
+
+### another_private_method
+puts "Another private method"

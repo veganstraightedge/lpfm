@@ -31,17 +31,14 @@ This document outlines the development roadmap for the Literate Programming Flav
 - [x] Methods with blocks (&block)
 - [x] Class variables (@@var)
 - [x] Alias/alias_method
+- [x] method_missing and meta-programming
+- [x] Mixed public/private/protected methods
 
 ### 🚧 Remaining Patterns
 
-**Ruby Language Features:**
+**Advanced Ruby Features:**
 
 - [ ] Nested classes/modules
-
-**Advanced Ruby:**
-
-- [ ] method_missing and meta-programming
-- [ ] Mixed public/private/protected methods
 
 ---
 

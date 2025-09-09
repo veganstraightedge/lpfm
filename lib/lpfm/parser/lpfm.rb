@@ -87,6 +87,8 @@ module LPFM
               else
                 # Exit singleton block when we encounter a regular H2 method
                 current_class_or_module.instance_variable_set(:@in_singleton_block, false)
+                # H2 methods default to public visibility
+                current_visibility = :public
                 current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
               end
             when 3
