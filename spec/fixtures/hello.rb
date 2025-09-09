@@ -1,5 +1,5 @@
 class HelloWorld
   def greet
-    # Hello from LPFM!
+    puts "Hello from LPFM!"
   end
 end
