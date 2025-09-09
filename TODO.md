@@ -193,3 +193,7 @@ This document outlines the development roadmap for the Literate Programming Flav
 - Plan for streaming/incremental parsing of large files
 - Design error handling to be helpful for debugging LPFM syntax
 - Consider integration with existing Ruby toolchain (Bundler, RubyGems, etc.)
+
+## Principles
+
+- Don’t use "Base" as a class name unless your domain is a fort, a sport, or the chemical sort.
