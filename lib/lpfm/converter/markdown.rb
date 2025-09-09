@@ -248,9 +248,9 @@ module LPFM
 
         # Format class body with proper indentation
         unless body_parts.empty?
-          formatted_body = body_parts.map { |part|
+          formatted_body = body_parts.map do |part|
             part.empty? ? "" : format_indentation(part)
-          }.join("\n")
+          end.join("\n")
           output << formatted_body
         end
 
@@ -361,9 +361,9 @@ module LPFM
 
         # Format module body with proper indentation
         unless body_parts.empty?
-          formatted_body = body_parts.map { |part|
+          formatted_body = body_parts.map do |part|
             part.empty? ? "" : format_indentation(part)
-          }.join("\n")
+          end.join("\n")
           output << formatted_body
         end
 

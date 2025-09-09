@@ -135,22 +135,22 @@ RSpec.describe "LPFM Examples" do
 
   describe "Error handling" do
     it "raises error for invalid LPFM content" do
-      expect {
+      expect do
         LPFM::LPFM.new("not valid lpfm content")
-      }.to raise_error(LPFM::Error, /LPFM content must contain at least one H1 heading/)
+      end.to raise_error(LPFM::Error, /LPFM content must contain at least one H1 heading/)
     end
 
     it "raises error for nil content" do
-      expect {
+      expect do
         lpfm = LPFM::LPFM.new
         lpfm.load(nil)
-      }.to raise_error(ArgumentError, /Cannot load nil content/)
+      end.to raise_error(ArgumentError, /Cannot load nil content/)
     end
 
     it "raises error for empty content" do
-      expect {
+      expect do
         LPFM::LPFM.new("")
-      }.to raise_error(LPFM::Error, /Content cannot be empty/)
+      end.to raise_error(LPFM::Error, /Content cannot be empty/)
     end
   end
 

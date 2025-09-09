@@ -69,9 +69,9 @@ RSpec.describe "LPFM Markdown Converter Examples" do
 
   describe "Error handling" do
     it "raises error for invalid LPFM content" do
-      expect {
+      expect do
         LPFM::LPFM.new("not valid lpfm content").to_markdown
-      }.to raise_error(LPFM::Error, /LPFM content must contain at least one H1 heading/)
+      end.to raise_error(LPFM::Error, /LPFM content must contain at least one H1 heading/)
     end
 
     it "returns empty string for LPFM object with no content" do

@@ -280,15 +280,15 @@ RSpec.describe LPFM::Parser::Ruby do
     it 'raises error for invalid Ruby syntax' do
       invalid_ruby = "class Foo def bar"
 
-      expect {
+      expect do
         LPFM::LPFM.new(invalid_ruby, type: :ruby)
-      }.to raise_error(LPFM::Error, /Invalid Ruby syntax|Failed to parse Ruby code/)
+      end.to raise_error(LPFM::Error, /Invalid Ruby syntax|Failed to parse Ruby code/)
     end
 
     it 'raises error for empty content' do
-      expect {
+      expect do
         LPFM::LPFM.new("", type: :ruby)
-      }.to raise_error(LPFM::Error, /cannot be empty/)
+      end.to raise_error(LPFM::Error, /cannot be empty/)
     end
 
     it 'creates empty LPFM object for nil content' do
