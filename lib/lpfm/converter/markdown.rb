@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'base'
+require_relative 'foundation'
 
 module LPFM
   module Converter
     # Converter for generating Markdown with fenced Ruby code blocks from LPFM internal structure
-    class Markdown < Base
+    class Markdown < Foundation
       def convert(include_prose: true)
         return "" unless has_content?
 

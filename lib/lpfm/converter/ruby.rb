@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'base'
+require_relative 'foundation'
 
 module LPFM
   module Converter
     # Converter for generating Ruby code from LPFM internal structure
-    class Ruby < Base
+    class Ruby < Foundation
       def convert(include_prose_as_comments: false)
         return "" unless has_content?
 

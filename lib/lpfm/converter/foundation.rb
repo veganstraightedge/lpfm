@@ -2,8 +2,8 @@
 
 module LPFM
   module Converter
-    # Base class for all LPFM converters
-    class Base
+    # Foundation class for all LPFM converters
+    class Foundation
       attr_reader :lpfm_object
 
       def initialize(lpfm_object)
