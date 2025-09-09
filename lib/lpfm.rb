@@ -55,15 +55,17 @@ module LPFM
       # Check if string is a file path
       if string.include?("\n") || string.include?("#") || string.include?("---")
         # Looks like content, not a file path
-        string
-      elsif File.exist?(string)
+        # Treat as raw content
+        return string
+      end
+
+      if File.exist?(string)
         # It's a file path that exists
         @filename = string
-        File.read(string)
-      else
-        # Treat as raw content
-        string
+        return File.read(string)
       end
+
+      string
     end
 
     def load_from_file(file)
