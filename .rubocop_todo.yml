@@ -238,15 +238,6 @@ Style/StringConcatenation:
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'lib/lpfm/converter/foundation.rb'
-    - 'lib/lpfm/data/method_definition.rb'
-
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: .
 # SupportedStyles: percent, brackets
 Style/SymbolArray:

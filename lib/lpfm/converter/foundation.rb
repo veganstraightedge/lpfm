@@ -30,7 +30,7 @@ module LPFM
       def format_method_arguments(arguments)
         return "" if arguments.empty?
 
-        "(#{arguments.join(', ')})"
+        "(#{arguments.join(", ")})"
       end
 
       def format_attribute_list(attributes)

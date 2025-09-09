@@ -62,7 +62,7 @@ module LPFM
       end
 
       def signature
-        args_string = @arguments.empty? ? "" : "(#{@arguments.join(', ')})"
+        args_string = @arguments.empty? ? "" : "(#{@arguments.join(", ")})"
         method_prefix = @is_class_method ? "self." : ""
         "#{method_prefix}#{@name}#{args_string}"
       end
