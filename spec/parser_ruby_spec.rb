@@ -15,7 +15,7 @@ RSpec.describe LPFM::Parser::Ruby do
     end
 
     example_files.each do |example|
-      context "#{example[:name]}" do
+      context example[:name].to_s do
         let(:original_ruby_path) { example[:ruby_file] }
         let(:original_ruby_content) { File.read(original_ruby_path) }
 

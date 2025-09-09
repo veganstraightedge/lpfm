@@ -201,12 +201,6 @@ Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/lpfm/converter/ruby.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/RedundantInterpolation:
-  Exclude:
-    - 'spec/parser_ruby_spec.rb'
-
 # Offense count: 9
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods, MaxChainLength.
