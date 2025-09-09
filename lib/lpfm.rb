@@ -4,6 +4,7 @@ require_relative "lpfm/version"
 require_relative "lpfm/data/class_definition"
 require_relative "lpfm/data/module_definition"
 require_relative "lpfm/data/method_definition"
+require_relative "lpfm/parser/lpfm"
 
 module LPFM
   class Error < StandardError; end
@@ -96,9 +97,22 @@ module LPFM
     end
 
     def parse_content
-      # TODO: Implement parsing logic based on @type
-      # For now, just store the content
+      case @type
+      when :lpfm
+        parser = Parser::LPFM.new(@content, self)
+        parser.parse
+      when :ruby
+        # TODO: Implement Ruby parser
+        raise Error, "Ruby parsing not yet implemented"
+      when :markdown
+        # TODO: Implement Markdown parser
+        raise Error, "Markdown parsing not yet implemented"
+      else
+        raise Error, "Unknown content type: #{@type}"
+      end
     end
+
+    public
 
     def add_class(name)
       @classes[name] = Data::ClassDefinition.new(name)
