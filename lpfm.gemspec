@@ -8,16 +8,20 @@ Gem::Specification.new do |spec|
   spec.authors = ["Shane Becker"]
   spec.email = ["veganstraightedge@gmail.com"]
 
-  spec.summary = "TODO: Write a short summary, because RubyGems requires one."
-  spec.description = "TODO: Write a longer description or delete this line."
+  spec.summary = "Literate Programming Flavored Markdown (LPFM)"
+  spec.description = <<~DESCRIPTION.strip.gsub("\n", " ")
+    Literate Programming Flavored Markdown (LPFM)
+    is a file format, syntax for literate programming in Markdown,
+    combining prose and code in the same file.
+    Prose for humans and code for machines are both written in Markdown.
+  DESCRIPTION
   spec.homepage = "https://github.com/veganstraightedge/lpfm"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2.0"
+  spec.required_ruby_version = ">= 3.4.5"
 
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/veganstraightedge/lpfm"
-    spec.metadata["changelog_uri"] = "https://github.com/veganstraightedge/lpfm/blob/main/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "https://github.com/veganstraightedge/lpfm/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -33,8 +37,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
-
-  # For more information and examples about making a new gem, check out our
-  # guide at: https://bundler.io/guides/creating_gem.html
+  spec.add_dependency "kramdown", "~> 2.5"
 end
