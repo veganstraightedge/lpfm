@@ -167,9 +167,8 @@ module LPFM
     end
 
     # Convert to Ruby code
-    def to_ruby(include_prose_as_comments: false)
-      converter = Converter::Ruby.new(self)
-      converter.convert(include_prose_as_comments: include_prose_as_comments)
+    def to_ruby
+      Converter::Ruby.new(self).convert
     end
 
     # Convert to Markdown with fenced Ruby code blocks

@@ -6,7 +6,7 @@ module LPFM
   module Converter
     # Converter for generating Ruby code from LPFM internal structure
     class Ruby < Foundation
-      def convert(include_prose_as_comments: false)
+      def convert
         return "" unless has_content?
 
         output = []
@@ -19,7 +19,7 @@ module LPFM
         end
 
         # Group classes and modules by namespace
-        namespaced_output = generate_namespaced_output(include_prose_as_comments)
+        namespaced_output = generate_namespaced_output
 
         # Add namespaced output
         namespaced_output.each_with_index do |content, index|
@@ -30,7 +30,7 @@ module LPFM
         output.join("\n")
       end
 
-      def generate_namespaced_output(include_prose = false)
+      def generate_namespaced_output
         result_parts = []
         namespace_groups = {}
         standalone_items = []
@@ -76,9 +76,9 @@ module LPFM
           all_items = items[:modules] + items[:classes]
           all_items.each do |item|
             content = if item.is_a?(Data::ClassDefinition)
-                        convert_class(item, include_prose)
+                        convert_class(item)
                       else
-                        convert_module(item, include_prose)
+                        convert_module(item)
                       end
             # Indent content for all namespace levels
             base_indent = "  " * namespace_parts.length
@@ -100,9 +100,9 @@ module LPFM
         # Add standalone items
         standalone_items.each do |item_info|
           result_parts << if item_info[:type] == :class
-                            convert_class(item_info[:item], include_prose)
+                            convert_class(item_info[:item])
                           else
-                            convert_module(item_info[:item], include_prose)
+                            convert_module(item_info[:item])
                           end
         end
 
@@ -111,14 +111,8 @@ module LPFM
 
       private
 
-      def convert_class(class_def, include_prose = false)
+      def convert_class(class_def)
         output = []
-
-        # Add class prose as comments if requested
-        if include_prose
-          prose_sections = extract_prose_sections(class_def)
-          output << format_prose_as_comments(prose_sections) unless prose_sections.empty?
-        end
 
         # Class definition line
         class_line = "class #{class_def.name}"
@@ -126,7 +120,7 @@ module LPFM
         output << class_line
 
         # Build class body
-        body_parts = build_class_body(class_def, include_prose)
+        body_parts = build_class_body(class_def)
 
         # Format class body with proper indentation
         unless body_parts.empty?
@@ -140,7 +134,7 @@ module LPFM
         output.join("\n")
       end
 
-      def build_class_body(class_def, include_prose)
+      def build_class_body(class_def)
         # Add includes first (Ruby convention)
         body_parts = class_def.includes.map do |include_mod|
           "include #{include_mod}"
@@ -187,7 +181,7 @@ module LPFM
         body_parts << "" if has_any_attrs && has_methods
 
         # Add methods
-        add_methods_to_body(body_parts, class_def, include_prose)
+        add_methods_to_body(body_parts, class_def)
 
         # Add aliases at the end
         add_aliases_to_body(body_parts, class_def, yaml_attrs, inline_attrs)
@@ -195,7 +189,7 @@ module LPFM
         body_parts
       end
 
-      def add_methods_to_body(body_parts, class_def, include_prose)
+      def add_methods_to_body(body_parts, class_def)
         # Process methods in their original parse order, handling singleton blocks and visibility changes
         current_visibility = :public
         method_index = 0
@@ -217,7 +211,7 @@ module LPFM
             if in_singleton_block
               singleton_methods.each_with_index do |singleton_method, index|
                 body_parts << "" if index.positive?
-                body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
+                body_parts << convert_method(singleton_method).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
               end
               body_parts << "end"
               singleton_methods.clear
@@ -235,7 +229,7 @@ module LPFM
               current_visibility = method.visibility
             end
 
-            body_parts << convert_method(method, include_prose)
+            body_parts << convert_method(method)
           end
 
           method_index += 1
@@ -246,7 +240,7 @@ module LPFM
 
         singleton_methods.each_with_index do |singleton_method, index|
           body_parts << "" if index.positive?
-          body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
+          body_parts << convert_method(singleton_method).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
         end
         body_parts << "end"
       end
@@ -265,14 +259,8 @@ module LPFM
         end
       end
 
-      def convert_module(module_def, include_prose = false)
+      def convert_module(module_def)
         output = []
-
-        # Add module prose as comments if requested
-        if include_prose
-          prose_sections = extract_prose_sections(module_def)
-          output << format_prose_as_comments(prose_sections) unless prose_sections.empty?
-        end
 
         # Module definition line
         output << "module #{module_def.name}"
@@ -326,7 +314,7 @@ module LPFM
         # Add public methods
         public_methods.each_with_index do |method, index|
           body_parts << "" if index.positive? # Add blank line between methods
-          body_parts << convert_method(method, include_prose)
+          body_parts << convert_method(method)
         end
 
         # Add protected methods first (as they appear first in LPFM)
@@ -336,7 +324,7 @@ module LPFM
           body_parts << ""
           protected_methods.each_with_index do |method, index|
             body_parts << "" if index.positive? # Add blank line between methods
-            body_parts << convert_method(method, include_prose)
+            body_parts << convert_method(method)
           end
         end
 
@@ -347,7 +335,7 @@ module LPFM
           body_parts << ""
           private_methods.each_with_index do |method, index|
             body_parts << "" if index.positive? # Add blank line between methods
-            body_parts << convert_method(method, include_prose)
+            body_parts << convert_method(method)
           end
         end
 
@@ -376,14 +364,8 @@ module LPFM
         output.join("\n")
       end
 
-      def convert_method(method, include_prose = false)
+      def convert_method(method)
         output = []
-
-        # Add method prose as comments if requested
-        if include_prose && method.has_prose?
-          method_prose = { method: method.prose }
-          output << format_prose_as_comments(method_prose, 1)
-        end
 
         # Method definition line
         # Don't add self. prefix for object singleton methods that already contain dots
