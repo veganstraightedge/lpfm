@@ -2,6 +2,49 @@
 
 This document outlines the development roadmap for the Literate Programming Flavored Markdown (LPFM) Ruby gem.
 
+## Phase 0: Ruby Patterns to Implement
+
+### ✅ Completed
+
+- [x] Simple classes with methods
+- [x] Private methods (`## private` + `### method_name`)
+- [x] Protected methods (`## protected` + `### method_name`)
+- [x] Class methods (`## self.method_name`)
+- [x] Method arguments (`## method(args)`)
+- [x] Initialize methods
+- [x] Inferred class names from filename
+- [x] Modules (YAML frontmatter, header prefix, inferred)
+- [x] Require statements (YAML frontmatter)
+- [x] Include statements (YAML frontmatter)
+- [x] Constants (YAML frontmatter and inline)
+- [x] Class inheritance (YAML frontmatter and header syntax)
+- [x] Methods with default parameters
+- [x] attr_reader/attr_writer/attr_accessor (inline and YAML frontmatter)
+- [x] Nested attr: reader/writer/accessor (YAML frontmatter)
+- [x] Extend statements
+- [x] Multiple classes in one file
+- [x] Methods with keyword arguments
+- [x] Namespaced classes (Namespace::ClassName)
+- [x] Empty methods
+- [x] Methods with splat arguments (*args, **kwargs)
+- [x] Singleton methods
+- [x] Methods with blocks (&block)
+- [x] Class variables (@@var)
+- [x] Alias/alias_method
+
+### 🚧 Remaining Patterns
+
+**Ruby Language Features:**
+
+- [ ] Nested classes/modules
+
+**Advanced Ruby:**
+
+- [ ] method_missing and meta-programming
+- [ ] Mixed public/private/protected methods
+
+---
+
 ## Phase 1: Core Foundation (MVP)
 
 ### 1.1 Internal Data Structure
