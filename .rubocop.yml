@@ -11,6 +11,9 @@ AllCops:
   Exclude:
     - doc/examples/**/*
 
+Layout/LineLength:
+  Max: 146
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
