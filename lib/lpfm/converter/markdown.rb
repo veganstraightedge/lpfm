@@ -65,7 +65,7 @@ module LPFM
 
         # Generate namespaced items
         namespace_groups.each_with_index do |(namespace_key, items), index|
-          output << "" if index > 0 || (!requires_output.empty? && !standalone_items.empty?)
+          output << "" if index.positive? || (!requires_output.empty? && !standalone_items.empty?)
           namespace_parts = namespace_key.split("::")
 
           # Open namespace modules with proper nesting
@@ -77,7 +77,7 @@ module LPFM
           # Add classes and modules within namespace
           all_items = items[:modules] + items[:classes]
           all_items.each_with_index do |item, item_index|
-            output << "" if item_index > 0
+            output << "" if item_index.positive?
 
             content = if item.is_a?(Data::ClassDefinition)
                         generate_class_content(item)
@@ -102,7 +102,7 @@ module LPFM
 
         # Add standalone items
         standalone_items.each_with_index do |item_info, index|
-          output << "" if index > 0 || (!namespace_groups.empty? && index == 0)
+          output << "" if index.positive? || (!namespace_groups.empty? && index.zero?)
 
           output << if item_info[:type] == :class
                       generate_class_content(item_info[:item])
@@ -182,7 +182,7 @@ module LPFM
             # This is a class method from class << self block
             unless in_singleton_block
               # Start the singleton block
-              body_parts << "" if method_index > 0
+              body_parts << "" if method_index.positive?
               body_parts << "class << self"
               in_singleton_block = true
             end
@@ -191,7 +191,7 @@ module LPFM
             # Close singleton block if we're in one and this is not a singleton method
             if in_singleton_block
               singleton_methods.each_with_index do |singleton_method, index|
-                body_parts << "" if index > 0
+                body_parts << "" if index.positive?
                 body_parts << convert_method(singleton_method).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
               end
               body_parts << "end"
@@ -201,7 +201,7 @@ module LPFM
             end
 
             # Add spacing before method if this isn't the first method
-            body_parts << "" if method_index > 0
+            body_parts << "" if method_index.positive?
 
             # Check if we need to add a visibility modifier
             if method.visibility != current_visibility
@@ -219,7 +219,7 @@ module LPFM
         # Close singleton block if we ended while still in one
         if in_singleton_block
           singleton_methods.each_with_index do |singleton_method, index|
-            body_parts << "" if index > 0
+            body_parts << "" if index.positive?
             body_parts << convert_method(singleton_method).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
           end
           body_parts << "end"
@@ -304,7 +304,7 @@ module LPFM
 
         # Add public methods
         public_methods.each_with_index do |method, index|
-          body_parts << "" if index > 0 # Add blank line between methods
+          body_parts << "" if index.positive? # Add blank line between methods
           body_parts << convert_method(method)
         end
 
@@ -314,7 +314,7 @@ module LPFM
           body_parts << "protected"
           body_parts << ""
           protected_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0 # Add blank line between methods
+            body_parts << "" if index.positive? # Add blank line between methods
             body_parts << convert_method(method)
           end
         end
@@ -325,7 +325,7 @@ module LPFM
           body_parts << "private"
           body_parts << ""
           private_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0 # Add blank line between methods
+            body_parts << "" if index.positive? # Add blank line between methods
             body_parts << convert_method(method)
           end
         end

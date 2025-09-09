@@ -422,7 +422,7 @@ module LPFM
                 other_indents = non_empty_lines[1..].map { |line| line[/^\s*/].length }
                 min_other_indent = other_indents.min || 0
 
-                if first_indent == 0 && min_other_indent > 0
+                if first_indent.zero? && min_other_indent.positive?
                   # Remove the extra indentation from all lines after the first
                   normalized_lines = lines.map do |line|
                     if line.strip.empty?

@@ -23,7 +23,7 @@ module LPFM
 
         # Add namespaced output
         namespaced_output.each_with_index do |content, index|
-          output << "" if index > 0
+          output << "" if index.positive?
           output << content
         end
 
@@ -207,7 +207,7 @@ module LPFM
             # This is a class method from class << self block
             unless in_singleton_block
               # Start the singleton block
-              body_parts << "" if method_index > 0
+              body_parts << "" if method_index.positive?
               body_parts << "class << self"
               in_singleton_block = true
             end
@@ -216,7 +216,7 @@ module LPFM
             # Close singleton block if we're in one and this is not a singleton method
             if in_singleton_block
               singleton_methods.each_with_index do |singleton_method, index|
-                body_parts << "" if index > 0
+                body_parts << "" if index.positive?
                 body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
               end
               body_parts << "end"
@@ -226,7 +226,7 @@ module LPFM
             end
 
             # Add spacing before method if this isn't the first method
-            body_parts << "" if method_index > 0
+            body_parts << "" if method_index.positive?
 
             # Check if we need to add a visibility modifier
             if method.visibility != current_visibility
@@ -245,7 +245,7 @@ module LPFM
         return unless in_singleton_block
 
         singleton_methods.each_with_index do |singleton_method, index|
-          body_parts << "" if index > 0
+          body_parts << "" if index.positive?
           body_parts << convert_method(singleton_method, include_prose).split("\n").map { |line| line.empty? ? "" : "  #{line}" }.join("\n")
         end
         body_parts << "end"
@@ -325,7 +325,7 @@ module LPFM
 
         # Add public methods
         public_methods.each_with_index do |method, index|
-          body_parts << "" if index > 0 # Add blank line between methods
+          body_parts << "" if index.positive? # Add blank line between methods
           body_parts << convert_method(method, include_prose)
         end
 
@@ -335,7 +335,7 @@ module LPFM
           body_parts << "protected"
           body_parts << ""
           protected_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0 # Add blank line between methods
+            body_parts << "" if index.positive? # Add blank line between methods
             body_parts << convert_method(method, include_prose)
           end
         end
@@ -346,7 +346,7 @@ module LPFM
           body_parts << "private"
           body_parts << ""
           private_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0 # Add blank line between methods
+            body_parts << "" if index.positive? # Add blank line between methods
             body_parts << convert_method(method, include_prose)
           end
         end
