@@ -7,7 +7,7 @@ module LPFM
     # Converter for generating Markdown with fenced Ruby code blocks from LPFM internal structure
     class Markdown < Foundation
       def convert
-        return "" unless has_content?
+        return "" unless content?
 
         output = []
 
@@ -51,7 +51,7 @@ module LPFM
 
         # Group modules by namespace (excluding namespace modules themselves)
         @lpfm_object.modules.each_value do |module_def|
-          next if module_def.is_namespace?
+          next if module_def.namespace?
 
           namespace = module_def.namespace
           if namespace && !namespace.empty?
@@ -136,11 +136,11 @@ module LPFM
         end
 
         # Add spacing after includes/extends if we have constants, class variables, attrs, or methods
-        has_includes_or_extends = class_def.has_includes? || class_def.extends.any?
-        has_constants_or_vars = class_def.has_constants? || class_def.has_class_variables?
-        has_attrs = class_def.has_attr_methods?
+        has_includes_or_extends = class_def.includes? || class_def.extends.any?
+        has_constants_or_vars = class_def.constants? || class_def.class_variables?
+        has_attrs = class_def.attr_methods?
 
-        body_parts << "" if has_includes_or_extends && (has_constants_or_vars || has_attrs || class_def.has_methods?)
+        body_parts << "" if has_includes_or_extends && (has_constants_or_vars || has_attrs || class_def.methods?)
 
         # Add class variables
         class_def.class_variables.each do |name, value|
@@ -153,8 +153,8 @@ module LPFM
         end
 
         # Add spacing after constants/class_variables if we have attr methods or methods
-        if (class_def.has_constants? || class_def.has_class_variables?) &&
-           (class_def.has_attr_methods? || class_def.has_methods?)
+        if (class_def.constants? || class_def.class_variables?) &&
+           (class_def.attr_methods? || class_def.methods?)
           body_parts << ""
         end
 
@@ -167,7 +167,7 @@ module LPFM
         body_parts.concat(inline_attrs)
 
         # Add spacing after any attr methods if we have methods (but not aliases, since they handle their own spacing)
-        has_methods = class_def.has_methods?
+        has_methods = class_def.methods?
         has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
         body_parts << "" if has_any_attrs && has_methods
 
@@ -226,10 +226,10 @@ module LPFM
         end
 
         # Add aliases at the end
-        if class_def.has_aliases?
+        if class_def.aliases?
           # Only add spacing if there are attrs or methods before aliases
           has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
-          body_parts << "" if has_any_attrs || class_def.has_methods?
+          body_parts << "" if has_any_attrs || class_def.methods?
           class_def.aliases.each do |alias_name, original_method|
             body_parts << "alias #{alias_name} #{original_method}"
           end
@@ -268,8 +268,8 @@ module LPFM
         end
 
         # Add spacing after includes/extends if we have other content
-        if (module_def.has_includes? || module_def.extends.any?) &&
-           (module_def.has_attr_methods? || module_def.has_constants? || module_def.has_class_variables? || module_def.has_methods?)
+        if (module_def.includes? || module_def.extends.any?) &&
+           (module_def.attr_methods? || module_def.constants? || module_def.class_variables? || module_def.methods?)
           body_parts << ""
         end
 
@@ -279,7 +279,7 @@ module LPFM
         end
 
         # Add spacing after constants if we have attr methods
-        body_parts << "" if module_def.has_constants? && module_def.has_attr_methods?
+        body_parts << "" if module_def.constants? && module_def.attr_methods?
 
         # Add attr_* methods (YAML first, then inline in order)
         yaml_attrs = format_attr_methods(module_def)
@@ -288,7 +288,7 @@ module LPFM
         body_parts.concat(inline_attrs)
 
         # Add spacing after any attr methods if we have methods or class variables (but not aliases, since they handle their own spacing)
-        has_methods_or_vars = module_def.has_methods? || !module_def.class_variables.empty?
+        has_methods_or_vars = module_def.methods? || !module_def.class_variables.empty?
         has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
         body_parts << "" if has_any_attrs && has_methods_or_vars
 
@@ -331,10 +331,10 @@ module LPFM
         end
 
         # Add aliases at the end
-        if module_def.has_aliases?
+        if module_def.aliases?
           # Only add spacing if there are attrs, methods, or class variables before aliases
           has_any_attrs = !yaml_attrs.empty? || !inline_attrs.empty?
-          body_parts << "" if has_any_attrs || module_def.has_methods? || !module_def.class_variables.empty?
+          body_parts << "" if has_any_attrs || module_def.methods? || !module_def.class_variables.empty?
           module_def.aliases.each do |alias_name, original_method|
             body_parts << "alias #{alias_name} #{original_method}"
           end
@@ -371,7 +371,7 @@ module LPFM
         output << method_line
 
         # Method body
-        if method.has_body?
+        if method.body?
           formatted_body = format_indentation(method.body)
           output << formatted_body
         end

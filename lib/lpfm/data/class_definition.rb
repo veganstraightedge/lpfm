@@ -68,29 +68,29 @@ module LPFM
         @prose[section] = text
       end
 
-      def has_methods?
+      def methods?
         !@methods.empty?
       end
 
-      def has_constants?
+      def constants?
         !@constants.empty?
       end
 
-      def has_class_variables?
+      def class_variables?
         !@class_variables.empty?
       end
 
-      def has_attr_methods?
+      def attr_methods?
         has_traditional_attrs = !@attr_readers.empty? || !@attr_writers.empty? || !@attr_accessors.empty?
         has_inline_attrs = @inline_attrs && !@inline_attrs.empty?
         has_traditional_attrs || has_inline_attrs
       end
 
-      def has_includes?
+      def includes?
         !@includes.empty?
       end
 
-      def has_extends?
+      def extends?
         !@extends.empty?
       end
 
@@ -102,7 +102,7 @@ module LPFM
         @alias_methods[alias_name] = original_method
       end
 
-      def has_aliases?
+      def aliases?
         !@aliases.empty? || !@alias_methods.empty?
       end
 
@@ -118,7 +118,7 @@ module LPFM
         @namespace ||= []
       end
 
-      def is_namespace?
+      def namespace?
         @is_namespace
       end
 

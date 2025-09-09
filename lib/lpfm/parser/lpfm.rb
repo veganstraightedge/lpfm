@@ -39,7 +39,7 @@ module LPFM
         has_h1_heading = lines.any? { |line| extract_heading_info(line)&.dig(:level) == 1 }
 
         # If no H1 heading and we have content, infer from filename
-        if !has_h1_heading && @filename && lines.any? { |line| !is_empty_line?(line) }
+        if !has_h1_heading && @filename && lines.any? { |line| !empty_line?(line) }
           inferred_name = infer_class_name_from_filename(@filename)
           current_class_or_module = create_class_or_module(inferred_name, metadata) if inferred_name
         end
@@ -48,7 +48,7 @@ module LPFM
         while i < lines.length
           line = lines[i]
 
-          if is_empty_line?(line)
+          if empty_line?(line)
             content_buffer << line
             i += 1
             next
@@ -85,7 +85,7 @@ module LPFM
           current_method = nil
         when 2
           # H2 defines method, visibility modifier, or singleton class block
-          if is_visibility_modifier?(heading_info[:title])
+          if visibility_modifier?(heading_info[:title])
             current_visibility = heading_info[:title].strip.downcase.to_sym
             current_method = nil
             # Exit singleton block when we hit a visibility modifier
@@ -232,7 +232,7 @@ module LPFM
 
         method_name = clean_method_name(title)
         arguments = extract_method_arguments(title)
-        is_class_method = is_class_method?(title)
+        is_class_method = class_method?(title)
 
         method = Data::MethodDefinition.new(method_name, visibility: visibility)
         arguments.each { |arg| method.add_argument(arg) }

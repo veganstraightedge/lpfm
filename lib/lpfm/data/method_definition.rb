@@ -53,11 +53,11 @@ module LPFM
         @visibility == :public
       end
 
-      def has_arguments?
+      def arguments?
         !@arguments.empty?
       end
 
-      def has_body?
+      def body?
         !@body.empty?
       end
 
@@ -71,7 +71,7 @@ module LPFM
         @prose = text
       end
 
-      def has_prose?
+      def prose?
         !@prose.nil? && !@prose.empty?
       end
 

@@ -58,11 +58,11 @@ module LPFM
         { level: level, title: title, raw: line }
       end
 
-      def is_heading?(line)
+      def heading?(line)
         line.strip.start_with?("#")
       end
 
-      def is_empty_line?(line)
+      def empty_line?(line)
         line.strip.empty?
       end
 
@@ -82,11 +82,11 @@ module LPFM
         end
       end
 
-      def is_class_method?(name)
-        name.start_with?("self.") || name.include?("self.") || is_object_singleton_method?(name)
+      def class_method?(name)
+        name.start_with?("self.") || name.include?("self.") || object_singleton_method?(name)
       end
 
-      def is_object_singleton_method?(name)
+      def object_singleton_method?(name)
         # Check if it's an object singleton method like admin.method_name or user.method_name
         # But not self.method_name which is handled separately
         # Extract just the method name part (before any parentheses) to avoid false positives from parameter values
@@ -94,7 +94,7 @@ module LPFM
         method_name_part.include?(".") && !method_name_part.include?("self.")
       end
 
-      def is_visibility_modifier?(name)
+      def visibility_modifier?(name)
         %w[private protected public].include?(name.strip.downcase)
       end
     end

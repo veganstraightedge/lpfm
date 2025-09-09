@@ -16,8 +16,8 @@ module LPFM
 
       protected
 
-      def has_content?
-        @lpfm_object.has_classes? || @lpfm_object.has_modules?
+      def content?
+        @lpfm_object.classes? || @lpfm_object.modules?
       end
 
       def format_indentation(text, level = 1)

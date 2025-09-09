@@ -154,15 +154,15 @@ module LPFM
       @modules[name]
     end
 
-    def has_classes?
+    def classes?
       !@classes.empty?
     end
 
-    def has_modules?
+    def modules?
       !@modules.empty?
     end
 
-    def has_requires?
+    def requires?
       !@requires.empty?
     end
 

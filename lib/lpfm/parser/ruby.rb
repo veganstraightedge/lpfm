@@ -90,7 +90,7 @@ module LPFM
           case statement
           when Prism::CallNode
             # Handle visibility modifiers and method calls
-            if is_visibility_call?(statement)
+            if visibility_call?(statement)
               current_visibility = extract_visibility(statement)
             else
               process_call_node(statement, class_def)
@@ -124,7 +124,7 @@ module LPFM
           node.body.body.each do |statement|
             case statement
             when Prism::CallNode
-              if is_visibility_call?(statement)
+              if visibility_call?(statement)
                 current_visibility = extract_visibility(statement)
               else
                 process_call_node(statement, module_def)
@@ -498,7 +498,7 @@ module LPFM
         end
       end
 
-      def is_visibility_call?(node)
+      def visibility_call?(node)
         return false unless node.type == :call_node
         return false unless node.receiver.nil? # Should be a bare method call
 
