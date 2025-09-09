@@ -64,7 +64,7 @@ module LPFM
           process_class_variable_assignment(node, parent_class_or_module)
         when Prism::AliasMethodNode
           process_alias_statement(node, parent_class_or_module)
-        # Skip comments and other nodes that don't translate to LPFM structure
+          # Skip comments and other nodes that don't translate to LPFM structure
         end
       end
 
