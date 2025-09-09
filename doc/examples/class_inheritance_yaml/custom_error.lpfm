@@ -1,0 +1,6 @@
+---
+inherits_from: StandardError
+---
+
+## message
+"Something went wrong"

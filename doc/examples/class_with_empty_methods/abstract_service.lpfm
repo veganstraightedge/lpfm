@@ -1,0 +1,21 @@
+# AbstractService
+
+## process
+
+## validate(input)
+
+## transform_data(data:, format: :json)
+
+## execute(command, args = [], verbose: false)
+
+## self.reset
+
+## self.configure(options:)
+
+## private
+
+### setup
+
+### cleanup(resource_id)
+
+### log_operation(operation:, status: :pending)

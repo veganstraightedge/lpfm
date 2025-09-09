@@ -1,0 +1,42 @@
+---
+require:
+  - logger
+  - json
+include:
+  - Loggable
+  - Validatable
+attr:
+  reader: 
+    - logger
+    - config
+  accessor: debug_mode
+constants:
+  VERSION: '2.1.0'
+  DEFAULT_TIMEOUT: 30
+---
+
+# BaseController
+
+## initialize
+
+## before_action
+
+## after_action
+
+## render(data:, status: 200)
+
+## redirect_to(path, status: 302)
+
+## self.inherited(subclass)
+
+## protected
+
+### authenticate
+
+### authorize(resource)
+
+## private
+
+### log_request
+
+### handle_error(error, context: {})

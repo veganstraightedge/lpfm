@@ -1,0 +1,7 @@
+# Calculator
+
+## add(a, b)
+a + b
+
+## multiply(x, y)
+x * y

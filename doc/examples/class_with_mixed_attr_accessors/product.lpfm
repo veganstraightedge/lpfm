@@ -1,0 +1,11 @@
+---
+attr_reader:
+  - id
+attr_writer:
+  - notes
+---
+
+# Product
+
+attr_accessor :price
+attr_reader :name

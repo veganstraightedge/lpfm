@@ -1,0 +1,36 @@
+---
+class_variables:
+  global_counter: 0
+---
+
+# StatCounter
+
+@@count = 0
+
+## initialize
+@@count += 1
+@@global_counter += 1
+
+## self.count
+@@count
+
+## self.reset
+@@count = 0
+
+# AverageCounter
+
+@@total = 0
+@@items = 0
+
+## add(value)
+@@total += value
+@@items += 1
+@@global_counter += 1
+
+## average
+return 0 if @@items == 0
+@@total.to_f / @@items
+
+## self.reset
+@@total = 0
+@@items = 0

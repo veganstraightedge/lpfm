@@ -1,0 +1,7 @@
+---
+type: module
+---
+# UserHelpers
+
+## format_name
+name.strip.titleize

@@ -1,0 +1,6 @@
+---
+type: module
+---
+
+## format_name
+name.strip.titleize

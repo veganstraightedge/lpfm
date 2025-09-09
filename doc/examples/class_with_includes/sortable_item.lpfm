@@ -1,0 +1,8 @@
+---
+include:
+  - Comparable
+---
+# SortableItem
+
+## compare_to(other)
+@priority <=> other.priority

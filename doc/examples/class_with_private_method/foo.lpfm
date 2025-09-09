@@ -1,0 +1,9 @@
+# Foo
+
+## bar
+puts "ab"
+
+## private
+
+### baz
+puts "xy"

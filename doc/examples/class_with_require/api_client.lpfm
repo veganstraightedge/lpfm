@@ -1,0 +1,10 @@
+---
+require:
+  - json
+  - net/http
+---
+# ApiClient
+
+## fetch_user
+response = Net::HTTP.get_response(URI('https://api.example.com/user'))
+JSON.parse(response.body)

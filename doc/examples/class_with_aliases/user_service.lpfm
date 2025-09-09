@@ -1,0 +1,34 @@
+---
+aliases:
+  find: find_user
+  create: create_user
+  update: update_user
+alias_method:
+  destroy: delete_user
+  all: get_all_users
+---
+
+# UserService
+
+## initialize(database)
+@database = database
+
+## find_user(id)
+@database.find(id)
+
+## create_user(attributes)
+@database.create(attributes)
+
+## update_user(id, attributes)
+@database.update(id, attributes)
+
+## delete_user(id)
+@database.delete(id)
+
+## get_all_users
+@database.all
+
+## private
+
+### validate_attributes(attributes)
+raise ArgumentError, "Invalid attributes" if attributes.empty?

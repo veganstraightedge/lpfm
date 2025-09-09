@@ -1,0 +1,7 @@
+# MyApp::UserService
+
+## initialize(database)
+@database = database
+
+## self.connection_status
+"Connected to #{@database_url}"

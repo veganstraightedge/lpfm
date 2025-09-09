@@ -1,0 +1,4 @@
+# CustomError < StandardError
+
+## message
+"Something went wrong"

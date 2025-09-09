@@ -1,0 +1,38 @@
+---
+class_variables:
+  total_count: 0
+  default_step: 1
+---
+
+# Counter
+
+## initialize(initial_value = 0)
+@value = initial_value
+@@total_count += 1
+
+## increment(step = @@default_step)
+@value += step
+@@total_count += step
+
+## decrement(step = @@default_step)
+@value -= step
+
+## value
+@value
+
+## self.total_count
+@@total_count
+
+## self.reset_total
+@@total_count = 0
+
+## self.set_default_step(step)
+@@default_step = step
+
+## private
+
+### validate_step(step)
+raise ArgumentError, "Step must be positive" if step <= 0
+
+### log_operation(operation, step)
+puts "#{operation}: #{step}, Total operations: #{@@total_count}"

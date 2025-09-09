@@ -1,0 +1,4 @@
+```ruby
+class User
+end
+```

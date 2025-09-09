@@ -1,0 +1,14 @@
+---
+attr_reader:
+  - id
+attr:
+  reader: name
+  accessor:
+    - age
+    - active
+  writer: email
+attr_accessor:
+  - status
+---
+
+# User

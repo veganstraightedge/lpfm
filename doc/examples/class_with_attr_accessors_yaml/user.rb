@@ -1,0 +1,5 @@
+class User
+  attr_reader :name, :email
+  attr_writer :password
+  attr_accessor :age, :active
+end

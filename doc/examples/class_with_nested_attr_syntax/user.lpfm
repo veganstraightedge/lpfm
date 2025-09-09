@@ -1,0 +1,10 @@
+---
+attr:
+  reader: name
+  accessor:
+    - age
+    - active
+  writer: email
+---
+
+# User

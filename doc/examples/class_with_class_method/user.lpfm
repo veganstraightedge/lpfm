@@ -1,0 +1,10 @@
+# User
+
+## initialize(name)
+@name = name
+
+## greet
+puts "Hello, #{@name}!"
+
+## self.all
+puts "Getting all users..."

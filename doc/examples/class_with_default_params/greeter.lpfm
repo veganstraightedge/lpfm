@@ -1,0 +1,10 @@
+# Greeter
+
+## greet(name = "World")
+puts "Hello, #{name}!"
+
+## farewell(name = "friend", punctuation = ".")
+puts "Goodbye, #{name}#{punctuation}"
+
+## welcome(message, times = 1)
+times.times { puts message }

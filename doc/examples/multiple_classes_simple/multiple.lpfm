@@ -1,0 +1,19 @@
+# User
+
+## initialize(name)
+@name = name
+
+## greet
+puts "Hello, #{@name}!"
+
+# Product
+
+## initialize(name, price)
+@name = name
+@price = price
+
+## display
+puts "#{@name}: $#{@price}"
+
+## on_sale?
+@price < 10.0

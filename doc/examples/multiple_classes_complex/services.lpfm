@@ -1,0 +1,48 @@
+---
+require:
+  - net/http
+  - json
+---
+# ApiService
+API_VERSION = "v1"
+
+## initialize(endpoint)
+@endpoint = endpoint
+
+## fetch_data(path)
+validate_path(path)
+response = make_request(path)
+parse_response(response)
+
+## private
+
+### validate_path(path)
+raise "Invalid path" if path.nil? || path.empty?
+
+### make_request(path)
+uri = URI("#{@endpoint}/#{API_VERSION}/#{path}")
+Net::HTTP.get_response(uri)
+
+### parse_response(response)
+JSON.parse(response.body)
+
+# EmailService
+
+## initialize(smtp_server)
+@smtp_server = smtp_server
+
+## send_email(to, subject, body)
+validate_email(to)
+compose_message(to, subject, body)
+deliver_message
+
+## private
+
+### validate_email(email)
+raise "Invalid email" unless email.include?('@')
+
+### compose_message(to, subject, body)
+@message = "To: #{to}\nSubject: #{subject}\n\n#{body}"
+
+### deliver_message
+puts "Sending via #{@smtp_server}: #{@message}"

@@ -1,0 +1,8 @@
+# User
+
+## initialize(name, email)
+@name = name
+@email = email
+
+## greet
+puts "Hello, #{@name}!"

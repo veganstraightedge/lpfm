@@ -1,0 +1,64 @@
+---
+require:
+  - json
+  - logger
+include:
+  - Enumerable
+attr:
+  reader: logger
+  accessor: debug_mode
+constants:
+  VERSION: '2.0.0'
+---
+
+# Utils::DataProcessor
+
+## initialize(*datasets, **config)
+@datasets = datasets.flatten
+@config = config
+@debug_mode = config.fetch(:debug, false)
+
+## process(*items, format: :json, **options)
+validate_input(items, format, options)
+
+items.map do |item|
+  process_single_item(item, format)
+end
+
+## merge(*other_processors, **merge_options)
+merged_data = []
+
+other_processors.each do |processor|
+  merged_data.concat(processor.datasets)
+end
+
+self.class.new(*merged_data, **merge_options)
+
+## self.bulk_create(*datasets, **config)
+processors = []
+
+datasets.each do |dataset|
+  processor = new(dataset, **config)
+  processors.push(processor)
+end
+
+processors
+
+## private
+
+### validate_input(items, format, options)
+raise ArgumentError, "Items cannot be empty" if items.empty?
+raise ArgumentError, "Invalid format" unless [:json, :xml].include?(format)
+
+### process_single_item(item, format)
+case format
+when :json
+  item.to_json
+when :xml
+  item.to_xml
+else
+  item.to_s
+end
+
+### datasets
+@datasets

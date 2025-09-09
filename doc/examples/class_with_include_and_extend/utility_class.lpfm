@@ -1,0 +1,16 @@
+---
+include:
+  - Comparable
+extend:
+  - Forwardable
+---
+# UtilityClass
+
+## initialize(value)
+@value = value
+
+## <=>(other)
+@value <=> other.value
+
+## to_s
+@value.to_s

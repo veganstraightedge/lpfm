@@ -1,0 +1,9 @@
+# Foo
+
+## greet
+puts "Hello!"
+
+## protected
+
+### validate_input
+puts "Validating..."

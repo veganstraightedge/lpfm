@@ -1,0 +1,63 @@
+---
+aliases:
+  find: find_by_id
+  create: create_record
+alias_method:
+  destroy: delete_record
+---
+
+# UserAPI
+
+## find_by_id(id)
+get("/users/#{id}")
+
+## create_record(data)
+post("/users", data)
+
+## delete_record(id)
+delete("/users/#{id}")
+
+## update(id, data)
+put("/users/#{id}", data)
+
+## private
+
+### get(path)
+http_client.get(path)
+
+### post(path, data)
+http_client.post(path, data)
+
+### put(path, data)
+http_client.put(path, data)
+
+### delete(path)
+http_client.delete(path)
+
+# ProductAPI
+
+## find_by_id(id)
+get("/products/#{id}")
+
+## create_record(data)
+post("/products", data)
+
+## delete_record(id)
+delete("/products/#{id}")
+
+## list_all
+get("/products")
+
+## private
+
+### get(path)
+http_client.get(path)
+
+### post(path, data)
+http_client.post(path, data)
+
+### put(path, data)
+http_client.put(path, data)
+
+### delete(path)
+http_client.delete(path)

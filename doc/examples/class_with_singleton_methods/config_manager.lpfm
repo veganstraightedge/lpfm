@@ -1,0 +1,64 @@
+# ConfigManager
+
+## initialize
+@settings = {}
+@cache = {}
+
+## get_setting(key)
+@settings[key]
+
+## set_setting(key, value)
+@settings[key] = value
+@cache.delete(key) if @cache.key?(key)
+
+## admin.revoke_access(user_id)
+puts "Admin revoking access for user #{user_id}"
+audit_log("ACCESS_REVOKED", user_id: user_id)
+
+## user.update_preferences(**preferences)
+user.preferences = user.preferences.merge(preferences)
+user.save!
+
+## class << self
+
+### configure(**options)
+@@global_config = options
+@@initialized = true
+
+### reset_config
+@@global_config = {}
+@@initialized = false
+
+### current_config
+@@global_config || {}
+
+### bulk_import(*config_files, format: :json, **import_options)
+combined_config = {}
+
+config_files.each do |file|
+  file_config = case format
+  when :json
+    JSON.parse(File.read(file))
+  when :yaml
+    YAML.load_file(file)
+  else
+    raise "Unsupported format: #{format}"
+  end
+  
+  combined_config.merge!(file_config)
+end
+
+configure(**combined_config.merge(import_options))
+
+## clear_cache
+@cache.clear
+log_cache_cleared
+
+## private
+
+### audit_log(action, **metadata)
+timestamp = Time.now
+puts "[#{timestamp}] #{action}: #{metadata.inspect}"
+
+### log_cache_cleared
+puts "Cache cleared at #{Time.now}"

@@ -1,0 +1,10 @@
+# Config
+
+VERSION = "1.2.0"
+MAX_RETRIES = 3
+
+## get_version
+VERSION
+
+## retry_limit
+MAX_RETRIES
