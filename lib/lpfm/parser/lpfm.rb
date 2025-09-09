@@ -155,6 +155,16 @@ module LPFM
         if metadata['class_variables']
           metadata['class_variables'].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) }
         end
+
+        # Handle aliases
+        if metadata['aliases']
+          metadata['aliases'].each { |alias_name, original_method| class_or_module.add_alias(alias_name, original_method) }
+        end
+
+        # Handle alias_method
+        if metadata['alias_method']
+          metadata['alias_method'].each { |alias_name, original_method| class_or_module.add_alias_method(alias_name, original_method) }
+        end
       end
 
       def create_method(title, visibility, class_or_module)

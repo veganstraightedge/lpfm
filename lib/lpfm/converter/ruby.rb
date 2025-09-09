@@ -113,6 +113,17 @@ module LPFM
           end
         end
 
+        # Add aliases at the end
+        if class_def.has_aliases?
+          body_parts << ""
+          class_def.aliases.each do |alias_name, original_method|
+            body_parts << "alias #{alias_name} #{original_method}"
+          end
+          class_def.alias_methods.each do |alias_name, original_method|
+            body_parts << "alias_method :#{alias_name}, :#{original_method}"
+          end
+        end
+
         # Format class body with proper indentation
         unless body_parts.empty?
           formatted_body = body_parts.map { |part|
@@ -199,6 +210,17 @@ module LPFM
           protected_methods.each_with_index do |method, index|
             body_parts << "" if index > 0  # Add blank line between methods
             body_parts << convert_method(method, include_prose)
+          end
+        end
+
+        # Add aliases at the end
+        if module_def.has_aliases?
+          body_parts << ""
+          module_def.aliases.each do |alias_name, original_method|
+            body_parts << "alias #{alias_name} #{original_method}"
+          end
+          module_def.alias_methods.each do |alias_name, original_method|
+            body_parts << "alias_method :#{alias_name}, :#{original_method}"
           end
         end
 

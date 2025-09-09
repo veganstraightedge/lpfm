@@ -6,7 +6,7 @@ module LPFM
     class ClassDefinition
       attr_accessor :name, :inherits_from, :methods, :constants, :class_variables,
                     :attr_readers, :attr_writers, :attr_accessors, :includes, :extends,
-                    :visibility_sections, :prose
+                    :aliases, :alias_methods, :visibility_sections, :prose
 
       def initialize(name)
         @name = name
@@ -19,6 +19,8 @@ module LPFM
         @attr_accessors = []
         @includes = []
         @extends = []
+        @aliases = {}
+        @alias_methods = {}
         @visibility_sections = { public: [], private: [], protected: [] }
         @prose = {}
       end
@@ -81,6 +83,18 @@ module LPFM
 
       def has_extends?
         !@extends.empty?
+      end
+
+      def add_alias(alias_name, original_method)
+        @aliases[alias_name] = original_method
+      end
+
+      def add_alias_method(alias_name, original_method)
+        @alias_methods[alias_name] = original_method
+      end
+
+      def has_aliases?
+        !@aliases.empty? || !@alias_methods.empty?
       end
     end
   end
