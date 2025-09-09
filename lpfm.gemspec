@@ -4,7 +4,7 @@ require_relative "lib/lpfm/version"
 
 Gem::Specification.new do |spec|
   spec.name = "lpfm"
-  spec.version = Lpfm::VERSION
+  spec.version = LPFM::VERSION
   spec.authors = ["Shane Becker"]
   spec.email = ["veganstraightedge@gmail.com"]
 

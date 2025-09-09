@@ -2,7 +2,7 @@
 
 require_relative "lpfm/version"
 
-module Lpfm
+module LPFM
   class Error < StandardError; end
   # Your code goes here...
 end
