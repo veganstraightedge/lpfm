@@ -276,15 +276,13 @@ module LPFM
         return if symbols.empty?
 
         # Use inline attrs to preserve order and spacing
-        parent_class_or_module.instance_variable_set(:@inline_attrs, []) unless parent_class_or_module.instance_variable_get(:@inline_attrs)
-
         attr_symbol = case attr_type
                       when 'attr_reader' then :reader
                       when 'attr_writer' then :writer
                       when 'attr_accessor' then :accessor
                       end
 
-        parent_class_or_module.instance_variable_get(:@inline_attrs) << { type: attr_symbol, attrs: symbols }
+        parent_class_or_module.add_inline_attr(attr_symbol, symbols)
       end
 
       def handle_alias_method_call(node, parent_class_or_module)

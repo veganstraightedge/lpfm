@@ -37,7 +37,7 @@ module LPFM
 
         # Group classes by namespace
         @lpfm_object.classes.each do |name, class_def|
-          namespace = class_def.instance_variable_get(:@namespace)
+          namespace = class_def.namespace
           if namespace && !namespace.empty?
             namespace_key = namespace.join('::')
             namespace_groups[namespace_key] ||= { modules: [], classes: [] }
@@ -49,8 +49,8 @@ module LPFM
 
         # Group modules by namespace (excluding namespace modules themselves)
         @lpfm_object.modules.each do |name, module_def|
-          unless module_def.instance_variable_get(:@is_namespace)
-            namespace = module_def.instance_variable_get(:@namespace)
+          unless module_def.is_namespace?
+            namespace = module_def.namespace
             if namespace && !namespace.empty?
               namespace_key = namespace.join('::')
               namespace_groups[namespace_key] ||= { modules: [], classes: [] }
@@ -209,7 +209,7 @@ module LPFM
         singleton_methods = []
 
         class_def.methods.each do |method|
-          if method.instance_variable_get(:@is_singleton_method)
+          if method.singleton_method?
             # This is a class method from class << self block
             if !in_singleton_block
               # Start the singleton block
@@ -444,8 +444,8 @@ module LPFM
 
         # If traditional arrays are empty but we have inline_attrs, use those as YAML attrs
         if attr_parts.empty?
-          inline_attrs = class_or_module.instance_variable_get(:@inline_attrs)
-          if inline_attrs
+          inline_attrs = class_or_module.inline_attrs
+          if inline_attrs && !inline_attrs.empty?
             inline_attrs.each do |attr_info|
               case attr_info[:type]
               when :reader
@@ -474,8 +474,8 @@ module LPFM
 
         return [] unless has_traditional_attrs
 
-        inline_attrs = class_or_module.instance_variable_get(:@inline_attrs)
-        return [] unless inline_attrs
+        inline_attrs = class_or_module.inline_attrs
+        return [] unless inline_attrs && !inline_attrs.empty?
 
         attr_parts = []
 

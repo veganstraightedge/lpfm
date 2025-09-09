@@ -93,16 +93,16 @@ module LPFM
             current_visibility = heading_info[:title].strip.downcase.to_sym
             current_method = nil
             # Exit singleton block when we hit a visibility modifier
-            current_class_or_module.instance_variable_set(:@in_singleton_block, false)
+            current_class_or_module.exit_singleton_block!
           elsif heading_info[:title].strip == 'class << self'
             # Handle singleton class block - methods following will be class methods
             current_visibility = :public
             current_method = nil
             # Mark that we're in a singleton class context
-            current_class_or_module.instance_variable_set(:@in_singleton_block, true)
+            current_class_or_module.enter_singleton_block!
           else
             # Exit singleton block when we encounter a regular H2 method
-            current_class_or_module.instance_variable_set(:@in_singleton_block, false)
+            current_class_or_module.exit_singleton_block!
             # H2 methods default to public visibility
             current_visibility = :public
             current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
@@ -112,8 +112,8 @@ module LPFM
           if current_class_or_module
             current_method = create_method(heading_info[:title], current_visibility, current_class_or_module)
             # If we're in a singleton block, mark this method as a singleton method
-            if current_class_or_module.instance_variable_get(:@in_singleton_block)
-              current_method.instance_variable_set(:@is_singleton_method, true)
+            if current_class_or_module.in_singleton_block?
+              current_method.mark_as_singleton!
             end
           end
         end
@@ -123,7 +123,7 @@ module LPFM
 
       def create_class_or_module(title, metadata = nil)
         # Use provided metadata or get from LPFM object
-        metadata ||= @lpfm_object.instance_variable_get(:@metadata) || {}
+        metadata ||= @lpfm_object.metadata || {}
 
         # Check if title starts with "module" keyword
         if title.start_with?('module ')
@@ -293,20 +293,17 @@ module LPFM
           if line.match?(/^attr_reader\s+/)
             attrs = extract_attr_symbols(line)
             # Store inline attrs with metadata to preserve order
-            class_or_module.instance_variable_set(:@inline_attrs, []) unless class_or_module.instance_variable_get(:@inline_attrs)
-            class_or_module.instance_variable_get(:@inline_attrs) << { type: :reader, attrs: attrs }
+            class_or_module.add_inline_attr(:reader, attrs)
 
           # Handle attr_writer - store as inline
           elsif line.match?(/^attr_writer\s+/)
             attrs = extract_attr_symbols(line)
-            class_or_module.instance_variable_set(:@inline_attrs, []) unless class_or_module.instance_variable_get(:@inline_attrs)
-            class_or_module.instance_variable_get(:@inline_attrs) << { type: :writer, attrs: attrs }
+            class_or_module.add_inline_attr(:writer, attrs)
 
           # Handle attr_accessor - store as inline
           elsif line.match?(/^attr_accessor\s+/)
             attrs = extract_attr_symbols(line)
-            class_or_module.instance_variable_set(:@inline_attrs, []) unless class_or_module.instance_variable_get(:@inline_attrs)
-            class_or_module.instance_variable_get(:@inline_attrs) << { type: :accessor, attrs: attrs }
+            class_or_module.add_inline_attr(:accessor, attrs)
 
           # Handle constants (CONSTANT_NAME = value)
           elsif line.match?(/^[A-Z][A-Z0-9_]*\s*=/)
