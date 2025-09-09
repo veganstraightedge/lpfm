@@ -12,7 +12,7 @@ module LPFM
 
   # Core LPFM class for literate programming with Markdown
   class LPFM
-    attr_reader :content, :type, :classes, :modules, :requires, :metadata
+    attr_reader :content, :type, :classes, :modules, :requires, :metadata, :filename
 
     def initialize(file_or_string = nil, type: :lpfm)
       @type = type
@@ -21,6 +21,7 @@ module LPFM
       @modules = {}
       @requires = []
       @metadata = {}
+      @filename = nil
 
       load(file_or_string) if file_or_string
     end
@@ -53,6 +54,7 @@ module LPFM
         string
       elsif File.exist?(string)
         # It's a file path that exists
+        @filename = string
         File.read(string)
       else
         # Treat as raw content
@@ -79,9 +81,14 @@ module LPFM
     end
 
     def validate_lpfm_content
-      # Basic LPFM validation - should have at least one heading
-      unless @content.match?(/^#[^#]/)
-        raise Error, "LPFM content must contain at least one H1 heading"
+      # Basic LPFM validation - should have at least one heading OR be suitable for filename inference
+      has_h1_heading = @content.match?(/^#[^#]/)
+      has_other_headings = @content.match?(/^##/)
+      has_yaml_frontmatter = @content.start_with?('---')
+
+      # Allow filename inference if we have methods (H2) or YAML frontmatter but no H1
+      unless has_h1_heading || (has_other_headings && @filename) || (has_yaml_frontmatter && @filename)
+        raise Error, "LPFM content must contain at least one H1 heading or be suitable for filename-based inference"
       end
     end
 
@@ -100,7 +107,7 @@ module LPFM
     def parse_content
       case @type
       when :lpfm
-        parser = Parser::LPFM.new(@content, self)
+        parser = Parser::LPFM.new(@content, self, @filename)
         parser.parse
       when :ruby
         # TODO: Implement Ruby parser

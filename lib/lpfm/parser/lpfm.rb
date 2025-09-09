@@ -6,12 +6,17 @@ module LPFM
   module Parser
     # Parser for LPFM (Literate Programming Flavored Markdown) content
     class LPFM < Base
+      def initialize(content, lpfm_object, filename = nil)
+        super(content, lpfm_object)
+        @filename = filename
+      end
+
       def parse
         metadata, content_without_frontmatter = extract_yaml_frontmatter
         process_yaml_metadata(metadata) if metadata
 
         lines = split_into_lines(content_without_frontmatter)
-        parse_structure(lines)
+        parse_structure(lines, metadata)
 
         @lpfm_object
       end
@@ -28,11 +33,20 @@ module LPFM
         @lpfm_object.instance_variable_set(:@metadata, metadata)
       end
 
-      def parse_structure(lines)
+      def parse_structure(lines, metadata = nil)
         current_class_or_module = nil
         current_method = nil
         current_visibility = :public
         content_buffer = []
+        has_h1_heading = lines.any? { |line| extract_heading_info(line)&.dig(:level) == 1 }
+
+        # If no H1 heading and we have content, infer from filename
+        if !has_h1_heading && @filename && lines.any? { |line| !is_empty_line?(line) }
+          inferred_name = infer_class_name_from_filename(@filename)
+          if inferred_name
+            current_class_or_module = create_class_or_module(inferred_name, metadata)
+          end
+        end
 
         i = 0
         while i < lines.length
@@ -54,7 +68,7 @@ module LPFM
             case heading_info[:level]
             when 1
               # H1 defines class or module
-              current_class_or_module = create_class_or_module(heading_info[:title])
+              current_class_or_module = create_class_or_module(heading_info[:title], metadata)
               current_visibility = :public
               current_method = nil
             when 2
@@ -83,9 +97,9 @@ module LPFM
         process_content_buffer(content_buffer, current_method, current_class_or_module)
       end
 
-      def create_class_or_module(title)
-        # Check metadata to determine if it's a module
-        metadata = @lpfm_object.instance_variable_get(:@metadata) || {}
+      def create_class_or_module(title, metadata = nil)
+        # Use provided metadata or get from LPFM object
+        metadata ||= @lpfm_object.instance_variable_get(:@metadata) || {}
         is_module = metadata['type'] == 'module'
 
         if is_module
@@ -136,6 +150,11 @@ module LPFM
         if metadata['constants']
           metadata['constants'].each { |name, value| class_or_module.add_constant(name, value) }
         end
+
+        # Handle class variables
+        if metadata['class_variables']
+          metadata['class_variables'].each { |name, value| class_or_module.add_class_variable("@@#{name}", value) }
+        end
       end
 
       def create_method(title, visibility, class_or_module)
@@ -170,25 +189,69 @@ module LPFM
       end
 
       def process_class_level_content(content, class_or_module)
-        # Parse class-level content like constants and class variables
+        # Parse class-level content like constants, class variables, and attr_* methods
         content.each_line do |line|
           line = line.strip
           next if line.empty?
 
+          # Handle attr_reader
+          if line.match?(/^attr_reader\s+/)
+            attrs = extract_attr_symbols(line)
+            class_or_module.add_attr_reader(*attrs)
+
+          # Handle attr_writer
+          elsif line.match?(/^attr_writer\s+/)
+            attrs = extract_attr_symbols(line)
+            class_or_module.add_attr_writer(*attrs)
+
+          # Handle attr_accessor
+          elsif line.match?(/^attr_accessor\s+/)
+            attrs = extract_attr_symbols(line)
+            class_or_module.add_attr_accessor(*attrs)
+
           # Handle constants (CONSTANT_NAME = value)
-          if line.match?(/^[A-Z][A-Z0-9_]*\s*=/)
+          elsif line.match?(/^[A-Z][A-Z0-9_]*\s*=/)
             parts = line.split('=', 2)
             constant_name = parts[0].strip
-            constant_value = parts[1].strip if parts[1]
+            constant_value = normalize_constant_value_from_text(parts[1].strip) if parts[1]
             class_or_module.add_constant(constant_name, constant_value)
 
           # Handle class variables (@@var = value)
           elsif line.match?(/^@@\w+\s*=/)
             parts = line.split('=', 2)
             var_name = parts[0].strip
-            var_value = parts[1].strip if parts[1]
+            var_value = normalize_constant_value_from_text(parts[1].strip) if parts[1]
             class_or_module.add_class_variable(var_name, var_value)
           end
+        end
+      end
+
+      def extract_attr_symbols(line)
+        # Extract symbols from attr_* lines like "attr_reader :name, :email"
+        symbols_part = line.sub(/^attr_\w+\s+/, '')
+        symbols_part.split(',').map do |symbol|
+          symbol.strip.sub(/^:/, '').to_sym
+        end
+      end
+
+      def normalize_constant_value_from_text(value_text)
+        value_text = value_text.strip
+
+        # Handle numeric values
+        if value_text.match?(/^\d+$/)
+          value_text.to_i
+        elsif value_text.match?(/^\d+\.\d+$/)
+          value_text.to_f
+        # Handle boolean values
+        elsif value_text == 'true'
+          true
+        elsif value_text == 'false'
+          false
+        elsif value_text == 'nil'
+          nil
+        else
+          # Return as string, preserving quotes if present
+          value_text
         end
       end
 

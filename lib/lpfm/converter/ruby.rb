@@ -46,14 +46,20 @@ module LPFM
         # Class body
         body_parts = []
 
+        # Add includes first (Ruby convention)
+        class_def.includes.each do |include_mod|
+          body_parts << "include #{include_mod}"
+        end
+
         # Add extends
         class_def.extends.each do |extend_mod|
           body_parts << "extend #{extend_mod}"
         end
 
-        # Add includes
-        class_def.includes.each do |include_mod|
-          body_parts << "include #{include_mod}"
+        # Add spacing after includes/extends if we have other content
+        if (class_def.has_includes? || class_def.extends.any?) &&
+           (class_def.has_attr_methods? || class_def.has_constants? || class_def.has_class_variables? || class_def.has_methods?)
+          body_parts << ""
         end
 
         # Add attr_* methods
@@ -70,7 +76,7 @@ module LPFM
         end
 
         # Add spacing after constants/class variables if we have methods
-        if class_def.has_methods? && (class_def.has_constants? || class_def.has_class_variables?)
+        if class_def.has_methods? && (class_def.has_constants? || class_def.has_class_variables? || class_def.has_attr_methods?)
           body_parts << ""
         end
 
@@ -134,14 +140,20 @@ module LPFM
         # Module body
         body_parts = []
 
+        # Add includes first (Ruby convention)
+        module_def.includes.each do |include_mod|
+          body_parts << "include #{include_mod}"
+        end
+
         # Add extends
         module_def.extends.each do |extend_mod|
           body_parts << "extend #{extend_mod}"
         end
 
-        # Add includes
-        module_def.includes.each do |include_mod|
-          body_parts << "include #{include_mod}"
+        # Add spacing after includes/extends if we have other content
+        if (module_def.has_includes? || module_def.extends.any?) &&
+           (module_def.has_attr_methods? || module_def.has_constants? || module_def.has_class_variables? || module_def.has_methods?)
+          body_parts << ""
         end
 
         # Add attr_* methods
