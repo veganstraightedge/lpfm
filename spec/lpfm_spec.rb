@@ -2,7 +2,7 @@
 
 RSpec.describe LPFM do
   it "has a version number" do
-    expect(LPFM::VERSION).not_to be nil
+    expect(LPFM::VERSION).not_to be_nil
   end
 
   describe "LPFM class" do

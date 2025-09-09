@@ -104,14 +104,6 @@ Naming/PredicatePrefix:
     - 'lib/lpfm/parser/ruby.rb'
 
 # Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: be, be_nil
-RSpec/BeNil:
-  Exclude:
-    - 'spec/lpfm_spec.rb'
-
-# Offense count: 1
 # Configuration parameters: Prefixes, AllowedPatterns.
 # Prefixes: when, with, without
 RSpec/ContextWording:
