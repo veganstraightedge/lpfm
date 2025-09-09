@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/lpfm"
+
+options = {
+  input:         nil,
+  output:        nil,
+  input_format:  nil,
+  output_format: nil,
+  verbose:       false
+}
+
+opt_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: lpfm [options]"
+
+  opts.on("-i", "--input FILE", "Input file (default: stdin)") { |v| options[:input] = v }
+  opts.on("-o", "--output FILE", "Output file (default: stdout)") { |v| options[:output] = v }
+  opts.on("--input-format FORMAT", "Input format: lpfm, rb, md") { |v| options[:input_format] = v }
+  opts.on("--output-format FORMAT", "Output format: lpfm, rb, md") { |v| options[:output_format] = v }
+  opts.on("-v", "--verbose", "Verbose output") { options[:verbose] = true }
+  opts.on("-h", "--help", "Prints this help") do
+    puts opts
+    exit
+  end
+end
+
+begin
+  opt_parser.parse!
+rescue OptionParser::InvalidOption => e
+  warn e.message
+  puts opt_parser
+  exit 1
+end
+
+# Read input
+input_data = if options[:input]
+               begin
+                 File.read(options[:input])
+               rescue Errno::ENOENT
+                 warn "Input file not found: #{options[:input]}"
+                 exit 1
+               end
+             else
+               $stdin.read
+             end
+
+# Detect formats if not specified
+input_format  = options[:input_format] ||
+                (options[:input] ? File.extname(options[:input]).sub(".", "") : "")
+output_format = options[:output_format] ||
+                (options[:output] ? File.extname(options[:output]).sub(".", "") : "")
+
+# Fallback to lpfm/rb if unknown
+input_format  = "lpfm" if input_format.nil?  || input_format.empty?
+output_format = "rb"   if output_format.nil? || output_format.empty?
+
+# Parse input
+lpfm_obj = case input_format
+           when "lpfm", "md", "markdown"
+             LPFM::Parser::LPFM.new(input_data, LPFM::LPFM.new, options[:input]).parse
+           when "rb"
+             LPFM::Parser::Ruby.new(input_data).parse
+           else
+             abort "Unknown input format: #{input_format}"
+           end
+
+# Convert to output
+output_data = case output_format
+              when "md", "markdown"
+                lpfm_obj.to_markdown
+              when "rb"
+                lpfm_obj.to_ruby
+              when "lpfm"
+                abort "Output format not supported yet: 'lpfm'"
+              else
+                abort "Unknown output format: #{output_format}"
+              end
+
+# Write output
+if options[:output]
+  begin
+    File.write(options[:output], output_data)
+  rescue Errno::EACCES
+    warn "Cannot write to output file: #{options[:output]}"
+    exit 1
+  end
+else
+  puts output_data
+end
