@@ -24,7 +24,6 @@ module LPFM
 
           # Convert AST to LPFM structure
           convert_ast_to_lpfm(result.value)
-
         rescue Prism::ParseError => e
           raise Error, "Ruby syntax error: #{e.message}"
         rescue => e
