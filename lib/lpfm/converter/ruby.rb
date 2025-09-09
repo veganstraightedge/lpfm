@@ -469,8 +469,8 @@ module LPFM
         # Only return inline attrs if we also have traditional attrs
         # (Otherwise inline_attrs are treated as YAML attrs by format_attr_methods)
         has_traditional_attrs = !class_or_module.attr_readers.empty? ||
-                               !class_or_module.attr_writers.empty? ||
-                               !class_or_module.attr_accessors.empty?
+                                !class_or_module.attr_writers.empty? ||
+                                !class_or_module.attr_accessors.empty?
 
         return [] unless has_traditional_attrs
 
