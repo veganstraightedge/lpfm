@@ -339,7 +339,7 @@ module LPFM
 
         # Add public methods
         public_methods.each_with_index do |method, index|
-          body_parts << "" if index > 0  # Add blank line between methods
+          body_parts << "" if index > 0 # Add blank line between methods
           body_parts << convert_method(method, include_prose)
         end
 
@@ -349,7 +349,7 @@ module LPFM
           body_parts << "protected"
           body_parts << ""
           protected_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0  # Add blank line between methods
+            body_parts << "" if index > 0 # Add blank line between methods
             body_parts << convert_method(method, include_prose)
           end
         end
@@ -360,7 +360,7 @@ module LPFM
           body_parts << "private"
           body_parts << ""
           private_methods.each_with_index do |method, index|
-            body_parts << "" if index > 0  # Add blank line between methods
+            body_parts << "" if index > 0 # Add blank line between methods
             body_parts << convert_method(method, include_prose)
           end
         end
